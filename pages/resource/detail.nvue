@@ -1,0 +1,164 @@
+<template>
+	<view class="resource-detail-page">
+		<view class="main">
+			<view class="thumbnail">
+				<image mode="aspectFill" class="thumbnail-img" :src="resourceDetail.thumbnail"></image>
+			</view>
+			<view class="meta">
+				<text class="meta-text title">{{resourceDetail.title}}</text>
+				<text class="meta-text" v-if="resourceDetail.category">
+					分类: {{resourceDetail.category}}
+				</text>
+				<text class="meta-text" v-if="resourceDetail.director">
+					导演: {{resourceDetail.director}}
+				</text>
+				<text class="meta-text" v-if="resourceDetail.palywright">
+					编剧: {{resourceDetail.palywright}}
+				</text>
+				<text class="meta-text" v-if="resourceDetail.mainRole">
+					主演: {{resourceDetail.mainRole}}
+				</text>
+				<text class="meta-text" v-if="resourceDetail.cname">
+					译名: {{resourceDetail.cname}}
+				</text>
+				<text class="meta-text" v-if="resourceDetail.ename">
+					片名: {{resourceDetail.ename}}
+				</text>
+				<text class="meta-text" v-if="resourceDetail.years">
+					年代: {{resourceDetail.years}}
+				</text>
+				<text class="meta-text" v-if="resourceDetail.producingArea">
+					产地: {{resourceDetail.producingArea}}
+				</text>
+				<text class="meta-text" v-if="resourceDetail.releaseDate">
+					上映日期: {{resourceDetail.releaseDate}}
+				</text>
+				<text class="meta-text" v-if="resourceDetail.duration">
+					片长: {{resourceDetail.duration}}
+				</text>
+			</view>
+		</view>
+		<view class="description">
+			<text class="label">剧情介绍</text>
+			{{resourceDetail.description}}
+		</view>
+		<view class="link" v-if="!systemInfo.isConcise">
+			<view>百度云</view>
+			<view>{{resourceDetail.downloadUrl}}</view>
+			<view>提取码</view>
+			<view>{{resourceDetail.downloadPassword}}</view>
+			<button size="mini" type="primary" @click="handleCopy()">一键复制</button>
+		</view>
+	</view>
+</template>
+
+<script>
+	import { ProxyGetResourceDetail } from '../../proxies/resource.js';
+	import { dateFormat } from '@/common/util.js';
+	import { mapState } from 'vuex';
+
+	export default {
+		data() {
+			return {
+				isLoading: false,
+				resourceId: null,
+				resourceDetail: {}
+			}
+		},
+		computed: {
+			...mapState(['systemInfo'])
+		},
+		onShareAppResource() {
+			return {
+				title: this.resourceDetail.title,
+				path: '/pages/resource/detail?id=' + this.resourceId
+			}
+		},
+		onLoad(event) {
+			this.resourceId = event.id;
+			this.getResourceDetail();
+		},
+		methods: {
+			handleCopy() {
+				const text = `复制这段内容后打开百度网盘App，操作更方便哦。链接：${this.resourceDetail.downloadUrl} 提取码：${this.resourceDetail.downloadPassword} `;
+				uni.setClipboardData({
+				    data: text,
+				    success: function () {
+				        uni.showToast({
+				        	title: '复制成功，请打开百度网盘APP',
+				        	icon: 'none'
+				        });
+				    }
+				});
+			},
+			async getResourceDetail() {
+				this.isLoading = true;
+				const params = {
+					id: this.resourceId
+				}
+				const result = await ProxyGetResourceDetail(params);
+				setTimeout(() => {
+					this.isLoading = false;
+				}, 800);
+				if (result.success) {
+					uni.setNavigationBarTitle({
+						title: result.data.cname
+					});
+					this.resourceDetail = result.data;
+					this.resourceDetail.datetime = dateFormat(result.data.createTime);
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.resource-detail-page {
+		flex: 1;
+		padding: 20rpx;
+	}
+	.main {
+		display: flex;
+		flex-direction: row;
+	}
+	.thumbnail {
+		width: 40%;
+	}
+	.thumbnail-img {
+		width: 100%;
+		height: 500rpx;
+	}
+
+	.meta {
+		flex: 1;
+		padding-left: 20rpx;
+		flex-direction: column;
+		justify-content: flex-start;
+	}
+
+	.meta-text {
+		color: #666;
+		font-size: 30rpx;
+	}
+	.title {
+		font-size: 36rpx;
+		color: #333;
+		margin-bottom: 20rpx;
+	}
+	
+	.description {
+		font-size: 30rpx;
+		margin: 20rpx 0;
+		overflow: hidden;
+		font-size: 30rpx;
+	}
+	.label {
+		font-size: 36rpx;
+		color: #333;
+		margin-bottom: 10rpx;
+	}
+	.link {
+		font-size: 30rpx;
+		color: #444;
+	}
+</style>

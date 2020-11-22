@@ -1,0 +1,93 @@
+<template>
+	<view class="record-detail-page">
+		<view class="title">{{recordDetail.title}}</view>
+		<text class="datetime">{{recordDetail.datetime}}</text>
+		<view class="money">
+			<text class="money-text">总计{{typeMap[recordDetail.type]}}</text>
+			<text class="bottom-line"></text>
+			<text class="money-text">￥{{recordDetail.money || 0}}</text>
+		</view>
+		<view class="additional">
+			<text class="additional-text">本次{{typeMap[recordDetail.type]}}共获得￥{{recordDetail.discount || 0}}减免</text>
+			<text class="additional-text">+{{recordDetail.score || 0}}积分</text>
+		</view>
+	</view>
+</template>
+
+<script>
+	import { ProxyGetRecordDetail } from '../../proxies/record.js';
+	import { TRANSACTION_TYPE } from '../../common/constant.js';
+	import { dateFormat } from '@/common/util.js';
+
+	export default {
+		data() {
+			return {
+				recordId: null,
+				recordDetail: {},
+				typeMap: TRANSACTION_TYPE
+			}
+		},
+		onLoad(event) {
+			this.recordId = event.id;
+			this.getRecordDetail();
+		},
+		methods: {
+			async getRecordDetail() {
+				const params = {
+					id: this.recordId
+				}
+				const result = await ProxyGetRecordDetail(params);
+				if (result.success) {
+					uni.setNavigationBarTitle({
+						title: `${this.typeMap[result.data.type]}详情`
+					});
+					this.recordDetail = result.data;
+					this.recordDetail.datetime = dateFormat(result.data.createTime);
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	/* #ifndef APP-PLUS */
+	page {
+		min-height: 100%;
+	}
+	/* #endif */
+	.record-detail-page {
+		flex: 1;
+		background-color: #FFFFFF;
+		padding: 30upx;
+	}
+	.bottom-line {
+		flex: 1;
+		height: 24upx;
+		margin: 0 30upx;
+		border-bottom-width: 1upx;
+		border-bottom-color: #CCCCCC;
+	}
+	.money {
+		flex-direction: row;
+	}
+	.money-text {
+		font-size: 48upx;
+		font-weight: bold;
+		color: #333333;
+	}
+	.additional {
+		margin: 40upx 0;
+	}
+	.additional-text {
+		font-size: 36upx;
+		color: #666666;
+		text-align: right;
+	}
+	.datetime {
+		margin: 40upx 0;
+		color: gray;
+		font-size: 30upx;
+	}
+	.content {
+	}
+</style>

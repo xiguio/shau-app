@@ -1,0 +1,115 @@
+<template>
+	<view class="login-page">
+		<view>
+			<text class="title">手机号登录/注册</text>
+			<input class="input" v-model="form.mobile" type="number" placeholder="请输入手机号码" />
+			<view class="code">
+				<input class="input code-input" v-model="form.code" type="number" placeholder="验证码" />
+				<button v-if="time" class="login" plain size="mini" type="primary" disabled>重新获取({{time}})</button>
+				<button v-else class="login" plain size="mini" type="primary" @click="sendSms">获取验证码</button>
+			</view>
+			<button class="confirm" :loading="isPending" :disabled="isPending" type="primary" @click="smsLogin">确定</button>
+		</view>
+		<login-footer />
+	</view>
+</template>
+
+<script>
+	import LoginFooter from '../../components/login-footer.nvue';
+	import { ProxySmsLogin } from '../../proxies/auth.js';
+	import { ProxySendSms } from '../../proxies/sms.js';
+	import { validateMobile, validateCode } from '../../common/validator.js';
+	
+	export default {
+		data() {
+			return {
+				isPending: false,
+				form: {
+					mobile: null,
+					code: null
+				},
+				time: null,
+				countdown: null
+			}
+		},
+		components: {
+			LoginFooter
+		},
+		onUnload() {
+			clearInterval(this.countdown);
+		},
+		methods: {
+			startCountdown() {
+				this.time = 60;
+				this.countdown = setInterval(() => {
+					this.time -= 1;
+					if (this.time <= 0) {
+						clearInterval(this.countdown);
+					}
+				}, 1000);
+			},
+			async sendSms() {
+				const { mobile } = this.form;
+				if (!validateMobile(mobile)) {
+					return;
+				}
+				const res = await ProxySendSms({ mobile });
+				if (res.success) {
+					this.startCountdown();
+				}
+			},
+			async smsLogin() {
+				const { mobile, code } = this.form;
+				if (!validateMobile(mobile)) {
+					return;
+				}
+				if (!validateCode(code)) {
+					return;
+				}
+				this.isPending = true;
+				const res = await ProxySmsLogin({ mobile, code });
+				setTimeout(() => {
+					this.isPending = false;
+				}, 600);
+				if (res.success) {
+					clearInterval(this.countdown);
+					const { token } = res.data;
+					this.$store.commit('login', token);
+					uni.setStorageSync('token', token);
+					uni.navigateBack();
+				}
+			},
+		}
+		
+	}
+</script>
+
+<style lang="scss" scoped>
+.login-page {
+	flex: 1;
+	padding: 30rpx;
+	justify-content: space-between;
+}
+.title {
+	font-size: 48rpx;
+	margin-bottom: 66rpx;
+}
+.input {
+	height: 80rpx;
+	border-bottom-width: 1rpx;
+	border-bottom-color: #999999;
+	border-bottom-style: solid;
+	margin-bottom: 40rpx;
+}
+.login {
+	margin-bottom: 40rpx;
+}
+.code {
+	flex-direction: row;
+	justify-content: space-between;
+}
+.code-input {
+	flex: 1;
+	margin-right: 30rpx;
+}
+</style>

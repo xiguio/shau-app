@@ -1,0 +1,82 @@
+<template>
+	<view class="scan-pay-page">
+		<text>请输入金额(元)</text>
+		<form @submit="onPayConfirm">
+			<view class="form-item">
+				<text class="sign">￥</text>
+				<input class="money" type="number" name="money" v-model="money" focus placeholder="请输入支付金额"></input>
+			</view>
+			<view class="form-item">
+				<button :loading="isPending" :disabled="isPending" form-type="submit" type="primary">确认支付</button>
+			</view>
+		</form>
+	</view>
+</template>
+
+<script>
+	import { ProxyAddByPay } from '../../proxies/record.js';
+	
+	export default {
+		data() {
+			return {
+				money: null,
+				isPending: false,
+				isPaid: false,
+			};
+		},
+		methods: {
+			onPayConfirm() {
+				uni.showModal({
+					title: '支付确认',
+					content: `确认向商家支付${this.money}元吗？`,
+					success: (res) => {
+						if (res.confirm) {
+							this.onPay();
+						} else if (res.cancel) {
+							console.log('用户点击取消');
+						}
+					}
+				});	
+			},
+			async onPay() {
+				if (this.isPaid || this.isPending) {
+					return;
+				}
+				const params = {
+					title: '用户直接支付',
+					money: this.money,
+				};
+				this.isPending = false;
+				const res = await ProxyAddByPay(params);
+				setTimeout(() => {
+					this.isPending = false;
+				}, 1000);
+				if (res.success) {
+					this.isPaid = true;
+					const { recordId, money } = res.data;
+					uni.redirectTo({ url: `/pages/pay/result?id=${recordId}&money=${money}` });
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.scan-pay-page {
+		padding: 30rpx;
+		background-color: #FFFFFF;
+	}
+	.title {
+		margin-bottom: 40rpx;
+		font-size: 28rpx;
+		color: #333333;
+	}
+	.form-item {
+		margin: 30rpx 0;
+	}
+	.sign {
+		font-size: 48rpx;
+		margin-left: -8rpx;
+		margin-bottom: 10rpx;
+	}
+</style>

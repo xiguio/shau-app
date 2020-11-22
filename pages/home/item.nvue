@@ -1,0 +1,60 @@
+<template>
+    <view class="resource-item" @click="click">
+        <view class="panel">
+            <image mode="aspectFill" lazy-load v-if="resourceItem.thumbnail" class="image" :src="resourceItem.thumbnail"></image>
+            <view class="info">
+				<text class="title">{{resourceItem.cname}}</text>
+			</view>
+        </view>
+    </view>
+</template>
+
+<script>
+    export default {
+        props: {
+            resourceItem: {
+                type: Object,
+                default: function(e) {
+                    return {}
+                }
+            }
+        },
+        methods: {
+            click() {
+                this.$emit('click');
+            },
+            close(e) {
+                e.stopPropagation();
+                this.$emit('close');
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .resource-item {}
+	.panel {
+		background-color: #FFFFFF;
+		flex: 1;
+		margin: 10rpx;
+		border-radius: 15rpx;
+	}
+	.image {
+		height: 320rpx;
+		width: 100%;
+	}
+	.info {
+		padding: 10rpx 0;
+	}
+	.title {
+		font-size: 32rpx;
+		color: #333333;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	.text {
+		font-size: 24rpx;
+		color: #999999;
+	}
+</style>

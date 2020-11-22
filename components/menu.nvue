@@ -1,0 +1,48 @@
+<template>
+	<view class="menu">
+		<scroll-view
+			ref="menu"
+			id="menu"
+			:scroll-x="true"
+			:show-scrollbar="false"
+			:scroll-into-view="scrollInto">
+			<view style="flex-direction: column;">
+				<view style="flex-direction: row;">
+					<view class="uni-menu-item" :ref="'menuitem0'"
+					 :data-id="0" :data-current="0" @click="onmenutap">
+						<text class="uni-menu-item-title" :class="currentMenuID==0 ? 'uni-menu-item-title-active' : ''">首页</text>
+					</view>
+					<view class="uni-menu-item" v-for="menu in categoryList" :key="menu.id" :id="menu.id" :ref="'menuitem'+menu.id"
+					 :data-id="menu.id" :data-current="menu.id" @click="onmenutap">
+						<text class="uni-menu-item-title" :class="currentMenuID==menu.id ? 'uni-menu-item-title-active' : ''">{{menu.name}}</text>
+					</view>
+				</view>
+				<view class="scroll-view-indicator">
+					<view ref="underline" class="scroll-view-underline" :class="isTap ? 'scroll-view-animation':''" :style="{'left': indicatorLineLeft + 'px', 'width': indicatorLineWidth + 'px'}"></view>
+				</view>
+			</view>
+		</scroll-view>
+	</view>
+</template>
+
+<script>
+	import { mapState } from 'vuex';
+	
+	export default {
+		name: 'menu',
+		computed: {
+			...mapState(['categoryList'])
+		},
+		data() {
+			return {
+				currentMenuID: 0,
+				isTap: false,
+				indicatorLineLeft: 0,
+				indicatorLineWidth: 0,
+			}
+		},
+	}
+</script>
+
+<style scoped>
+</style>

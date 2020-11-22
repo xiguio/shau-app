@@ -1,0 +1,54 @@
+<template>
+	<view class="pay-result-page">
+		<view>
+			<text class="success">支付成功</text>
+			<text class="money">￥{{money}}</text>
+		</view>
+		<button class="finish" @click="toHome">完成</button>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				recordId: null,
+				money: 0,
+			}
+		},
+		onShow() {
+			uni.hideLoading();
+		},
+		onLoad(query) {
+			this.recordId = query.id;
+			this.money = query.money;
+		},
+		methods: {
+			toHome() {
+				uni.switchTab({
+					url: '/pages/home/index'
+				})
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.pay-result-page {
+		padding: 100rpx 30rpx;
+		justify-content: space-between;
+	}
+	.success {
+		color: #4CD964;
+		text-align: center;
+	}
+	.money {
+		font-size: 52rpx;
+		font-weight: bold;
+		text-align: center;
+		margin: 100rpx 0;
+	}
+	.finish {
+		
+	}
+</style>

@@ -1,0 +1,58 @@
+<template>
+    <view class="resource-item" v-if="resourceItem.title" @click="click">
+        <view class="panel">
+            <image mode="aspectFill" lazy-load v-if="resourceItem.banner" class="image" :src="resourceItem.banner"></image>
+            <view class="info">
+				<text class="title">{{resourceItem.title}}</text>
+				<text class="text">{{resourceItem.datetime}}</text>
+			</view>
+        </view>
+    </view>
+</template>
+
+<script>
+    export default {
+        props: {
+            resourceItem: {
+                type: Object,
+                default: function(e) {
+                    return {}
+                }
+            }
+        },
+        methods: {
+            click() {
+                this.$emit('click');
+            },
+            close(e) {
+                e.stopPropagation();
+                this.$emit('close');
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .resource-item {}
+	.panel {
+		background-color: #FFFFFF;
+		flex: 1;
+		margin: 10upx 20upx;
+		border-radius: 15upx;
+	}
+	.image {
+		height: 300upx;
+		width: 710upx;
+	}
+	.info {
+		padding: 30rpx;
+	}
+	.title {
+		font-size: 38rpx;
+		margin-bottom: 20rpx;
+	}
+	.text {
+		font-size: 24rpx;
+		color: #999999;
+	}
+</style>

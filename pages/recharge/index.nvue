@@ -1,0 +1,52 @@
+<template>
+	<view class="recharge-page">
+		<text>请输入金额(元)</text>
+		<form @submit="onSubmit">
+			<view class="form-item">
+				<text class="sign">￥</text>
+				<input class="money" type="number" name="money" v-model="rechargeMoney" focus placeholder="请输入充值金额"></input>
+			</view>
+			<view class="form-item">
+				<button form-type="submit" type="primary">确认充值</button>
+			</view>
+		</form>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				rechargeMoney: null,
+			};
+		},
+		methods: {
+			onSubmit() {
+				uni.showToast({
+				    title: this.rechargeMoney,
+					icon: 'none'
+				});
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.recharge-page {
+		padding: 30rpx;
+		background-color: #FFFFFF;
+	}
+	.title {
+		margin-bottom: 40rpx;
+		font-size: 28rpx;
+		color: #333333;
+	}
+	.form-item {
+		margin: 30rpx 0;
+	}
+	.sign {
+		font-size: 48rpx;
+		margin-left: -8rpx;
+		margin-bottom: 10rpx;
+	}
+</style>

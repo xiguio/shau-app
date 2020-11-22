@@ -1,0 +1,74 @@
+<template>
+	<view class="login-footer">
+		<view class="socials">
+			<!-- <text class="other">其他登录方式</text>
+			<view class="list">
+				<image class="social"></image>
+				<image class="social"></image>
+				<image class="social"></image>
+				<image class="social"></image>
+			</view> -->
+			<view class="agreement">
+				<checkbox-group @change="handleAgreementChecked">
+					<label class="agreement-label">
+						<checkbox :value="true" />
+						<text class="agreement-text">我已阅读并同意</text>
+					</label>
+				</checkbox-group>
+				<text class="agreement-text">《用户协议》和《隐私政策》</text>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		name: 'login-footer',
+		data() {
+			return {
+				isRead: false
+			}
+		},
+		methods: {
+			handleAgreementChecked({ detail }) {
+				this.isRead = !!(detail.value && detail.value[0]);
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.agreement {
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.agreement-label {
+		align-items: center;
+		flex-direction: row;
+	}
+	.agreement-text {
+		text-align: center;
+		font-size: 24rpx;
+		color: #888888;
+	}
+	.other {
+		text-align: center;
+		font-size: 28rpx;
+		color: #888888;
+	}
+	.socials {
+		padding-bottom: 40rpx;
+	}
+	.list {
+		flex-direction: row;
+		justify-content: space-between;
+		margin: 30rpx 80rpx;
+	}
+	.social {
+		background-color: #EEEEEE;
+		border-radius: 50%;
+		width: 100rpx;
+		height: 100rpx;
+	}
+</style>

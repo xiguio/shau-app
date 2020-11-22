@@ -1,0 +1,67 @@
+<template>
+    <view class="record-item" v-if="recordItem.title" @click="click">
+        <view class="panel">
+            <view class="info">
+				<text class="title">{{recordItem.title}}</text>
+				<text class="text">{{recordItem.datetime}}</text>
+			</view>
+			<text class="money">{{typeMap[recordItem.type]}}￥{{recordItem.money}}</text>
+        </view>
+    </view>
+</template>
+
+<script>
+	import { TRANSACTION_TYPE } from '../../common/constant.js';
+	
+    export default {
+        props: {
+            recordItem: {
+                type: Object,
+                default: function(e) {
+                    return {}
+                }
+            }
+        },
+		data() {
+			return {
+				typeMap: TRANSACTION_TYPE
+			}
+		},
+        methods: {
+            click() {
+                this.$emit('click');
+            },
+            close(e) {
+                e.stopPropagation();
+                this.$emit('close');
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .record-item {
+		margin: 10upx 20upx;
+	}
+	.panel {
+		background-color: #FFFFFF;
+		flex-direction: row;
+		justify-content: space-between;
+		border-radius: 15upx;
+		padding: 30upx;
+		align-items: center;
+	}
+	.info {
+	}
+	.money {
+		font-size: 32upx;
+	}
+	.title {
+		font-size: 38upx;
+		margin-bottom: 20upx;
+	}
+	.text {
+		font-size: 24upx;
+		color: #999999;
+	}
+</style>

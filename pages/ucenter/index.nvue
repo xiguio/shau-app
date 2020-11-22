@@ -1,0 +1,317 @@
+<template>
+	<view class="center-page">
+		<view class="logo" @click="toLoginPage">
+			<image class="logo-img" :src="hasLogin && userInfo.avatar ? userInfo.avatar : avatar"></image>
+			<view class="logo-title">
+				<text class="username">Hi，{{hasLogin ? userInfo.nickname : '游客'}}</text>
+				<text class="level-name">{{vipList[currentLevelIndex].name}}</text>
+				<text class="go-login-navigat-arrow navigat-arrow" v-if="!hasLogin">&#xe65e;</text>
+			</view>
+		</view>
+		<view class="level">
+			<view class="score">
+				<text class="score-number">{{userInfo.score || 0}}</text>
+				<text class="score-text">积分</text>
+			</view>
+			<view>
+				<text class="next" v-if="nextLevelScore > -1">距离下一等级还需 {{nextLevelScore - (userInfo.score || 0)}} 积分</text>
+				<text class="next" v-else>您已达到顶级，棒</text>
+			</view>
+			<view class="progress">
+				<progress activeColor="#564f5f" :percent="percent" active stroke-width="4" />
+				<view class="level-list">
+					<template v-for="(item, index) in vipList">
+						<view
+							v-if="item.isShowInProgress"
+							class="level-item"
+							:class="'level-item-'+index"
+							:style="{'left': `${item.score - 60}rpx`}"
+							:index="index"
+							:key="index">
+							<text class="level-dot" :class="{'level-dot-active': index <= currentLevelIndex}"></text>
+							<text class="level-text">{{item.name}}</text>
+						</view>
+					</template>
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import { mapState } from 'vuex';
+	export default {
+		data() {
+			return {
+				avatar: '/static/logo.png'
+			}
+		},
+		computed: {
+			// 630为等级进度条的宽度。
+			// 为了更好控制等级在进度条上的位置，最高等级的数值不能小于进度条长度，
+			// 目前进度条长度为630rpx，值为580样式效果最佳
+			percent() {
+				const { score } = this.userInfo;
+				return score ? (score / 630) * 100 : 0;
+			},
+			// 当前等级索引
+			currentLevelIndex() {
+				let level = 0;	// 当前等级
+				const { score } = this.userInfo;
+				if (!score) {
+					return level;
+				}
+				this.vipList.forEach((item, index) => {
+					if (item.score <= score) {
+						level = index;
+					}
+				});
+				return level;
+			},
+			// 最高等级所需积分
+			topLevelScore() {
+				let result = 0;
+				this.vipList.forEach((item) => {
+					if (item.score > result) {
+						result = item.score;
+					}
+				});
+				return result;
+			},
+			// 下一等级所需积分
+			nextLevelScore() {
+				let result = 0;
+				const { score } = this.userInfo;
+				if (this.topLevelScore <= score) {
+					// 如果用户积分已经达到或超过最高等级，则设为-1
+					return -1;
+				}
+				this.vipList.forEach((item) => {
+					if (score < item.score && result === 0) {
+						result = item.score;
+					}
+				});
+				console.info(result);
+				return result;
+			},
+			...mapState(['userInfo', 'vipList', 'hasLogin'])
+		},
+		onShow() {
+			uni.$emit('getUserInfo', true);
+		},
+		onPullDownRefresh() {
+			uni.$emit('getUserInfo', false);
+		},
+		methods: {
+			logout() {
+				if (!this.hasLogin) {
+					return;
+				}
+				uni.showModal({
+				    title: '退出登录',
+				    content: '是否确认退出登录？',
+				    success: (res) => {
+				        if (res.confirm) {
+				            this.$store.commit('logout');
+				            this.$store.commit('celarUserInfo');
+				        }
+				    }
+				});
+			},
+			toLoginPage() {
+				if (!this.hasLogin) {
+					uni.navigateTo({
+						url: '/pages/auth/login'
+					});
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	/* #ifndef APP-PLUS-NVUE */
+	@font-face {
+		font-family: texticons;
+		font-weight: normal;
+		font-style: normal;
+		src: url('~@/static/text-icon.ttf') format('truetype');
+	}
+	/* #endif*/
+
+	/* 解决头条小程序字体图标不显示问题，因为头条运行时自动插入了span标签，且有全局字体 */
+	/* #ifdef MP-TOUTIAO */
+	text :not(view) {
+		font-family: texticons;
+	}
+
+	/* #endif */
+
+	.center-page {
+		flex: 1;
+		flex-direction: column;
+		background-color: #f8f8f8;
+		min-height: 100vh;
+	}
+	.text-center {
+		text-align: center;
+	}
+
+	.logo {
+		width: 750rpx;
+		height: 420rpx;
+		padding: 40rpx 20rpx 100rpx 20rpx;
+		background-color: #564f5f;
+		flex-direction: row;
+		align-items: center;
+	}
+	.level {
+		background-color: #FFFFFF;
+		height: 280rpx;
+		margin-right: 30rpx;
+		margin-left: 30rpx;
+		margin-top: -140rpx;
+		margin-bottom: 20rpx;
+		border-radius: 18rpx;
+		padding: 30rpx;
+	}
+	.progress {
+		margin-top: 20rpx;
+		width: 630rpx;
+	}
+	.level-list {
+		position: relative;
+		flex-direction: row;
+	}
+	.level-item {
+		width: 120rpx;
+		position: absolute;
+		margin-top: -20rpx;
+	}
+	.level-item-3 {
+		align-items: flex-end;
+	}
+	.level-dot {
+		border-radius: 50%;
+		border-color: #EBEBEB;
+		border-width: 8rpx;
+		background-color: #FFFFFF;
+		width: 30rpx;
+		height: 30rpx;
+		margin: 0 40rpx;
+	}
+	.level-dot-active {
+		border-color: #564f5f;
+	}
+	.level-text {
+		margin: 10rpx;
+		font-size: 32rpx;
+	}
+	.level-name {
+		color: #FFFFFF;
+		font-size: 28rpx;
+	}
+	.score {
+		color: #333333;
+		flex-direction: row;
+		align-items: center;
+	}
+	.score-number {
+		font-size: 64rpx;
+	}
+	.score-text {
+		font-size: 28rpx;
+		margin-left: 10rpx;
+	}
+	.next {
+		font-size: 24rpx;
+		color: #333333;
+		margin-bottom: 20rpx;
+	}
+
+	.logo-img {
+		width: 150rpx;
+		height: 150rpx;
+		border-radius: 50%;
+		background-color: #F8F8F8;
+	}
+
+	.logo-title {
+		height: 100rpx;
+		flex: 1;
+		justify-content: space-between;
+		margin-left: 20rpx;
+	}
+
+	.username {
+		height: 60rpx;
+		line-height: 60rpx;
+		font-size: 38rpx;
+		color: #FFFFFF;
+	}
+
+	.go-login-navigat-arrow {
+		font-size: 38rpx;
+		color: #FFFFFF;
+	}
+
+	.login-title {
+		height: 150rpx;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		margin-left: 20rpx;
+	}
+
+	.center-list {
+		flex-direction: column;
+		background-color: #FFFFFF;
+		margin: 20rpx 30rpx;
+		border-radius: 18rpx;
+	}
+
+	.center-list-item {
+		height: 90rpx;
+		flex-direction: row;
+		padding: 0rpx 20rpx;
+	}
+
+	.border-bottom {
+		border-bottom-width: 1rpx;
+		border-color: #c8c7cc;
+		border-bottom-style: solid;
+	}
+
+	.list-icon {
+		width: 40rpx;
+		height: 90rpx;
+		line-height: 90rpx;
+		font-size: 34rpx;
+		color: #333333;
+		text-align: center;
+		font-family: texticons;
+		margin-right: 20rpx;
+	}
+
+	.list-text {
+		height: 90rpx;
+		line-height: 90rpx;
+		font-size: 34rpx;
+		color: #555;
+		flex: 1;
+	}
+	
+	.text-disabled {
+		color: #999;
+	}
+	
+	.navigat-arrow {
+		height: 90rpx;
+		width: 40rpx;
+		line-height: 90rpx;
+		font-size: 34rpx;
+		color: #555;
+		text-align: right;
+		font-family: texticons;
+	}
+</style>

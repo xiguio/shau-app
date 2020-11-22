@@ -1,0 +1,116 @@
+<template>
+	<view class="pay-page">
+		<view>
+			<text class="tips">二维码每30秒自动更新</text>
+		</view>
+		<image class="qrcode" :src="qrcode.code"></image>
+		<text class="amount">余额：￥{{userInfo.amount}}元</text>
+		<view class="actions">
+			<button class="recharge" @click="toRechargePage">立即充值</button>
+			<button class="scan" type="primary" @click="toPayPage">直接支付</button>
+		</view>
+	</view>
+</template>
+
+<script>
+	import { ProxyGetPayQRCode } from '../../proxies/pay.js';
+	import { ProxyGetRecordDetail } from '../../proxies/record.js';
+	export default {
+		data() {
+			return {
+				qrcode: {},
+				isShow: true,
+				getCodeInterval: null,
+			}
+		},
+		computed: {
+			userInfo() {
+				return this.$store.state.userInfo;
+			}
+		},
+		onHide() {
+			this.isShow = false;
+			clearInterval(this.getCodeInterval);
+		},
+		onShow() {
+			this.init();
+		},
+		methods: {
+			async init() {
+				// 页面显示后每30秒更新一次付款二维码
+				await this.getPayQRCode();
+				await this.getRecordDetail();
+				this.getCodeInterval = setInterval(() => {
+					this.getPayQRCode();
+				}, 30000);
+			},
+			toRechargePage() {
+				uni.navigateTo({
+					url: '/pages/recharge/index'
+				});
+			},
+			// 扫码付款
+			toPayPage() {
+				uni.navigateTo({
+					url: '/pages/pay/do'
+				});
+			},
+			// 获取付款二维码
+			async getPayQRCode() {
+				const res = await ProxyGetPayQRCode();
+				if (res.success) {
+					this.qrcode = res.data;
+				}
+			},
+			// 根据二维码查询订单记录详情
+			async getRecordDetail() {
+				const { codeTime } = this.qrcode;
+				if (!codeTime) return;
+				const params = { codeTime };
+				const res = await ProxyGetRecordDetail(params);
+				if (res.success) {
+					uni.showLoading({ title: '扫码成功' });
+					const { recordId, money } = res.data;
+					uni.redirectTo({ url: `/pages/pay/result?id=${recordId}&money=${money}` });
+				} else {
+					// 轮询获取订单记录
+					setTimeout(() => {
+						this.isShow && this.getRecordDetail();
+					}, 800);
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+.pay-page {
+	flex: 1;
+	padding-top: 100rpx;
+	align-items: center;
+}
+.actions {
+	flex-direction: row;
+	margin: 40rpx;
+}
+.scan {
+	padding: 0 40rpx;
+	margin-left: 20rpx;
+}
+.recharge {
+	padding: 0 40rpx;
+	margin-right: 20rpx;
+}
+.tips {
+	font-size: 28rpx;
+	color: #999999;
+}
+.qrcode {
+	width: 500rpx;
+	height: 500rpx;
+}
+.amount {
+	margin: 20rpx;
+	font-weight: bold;
+}
+</style>
