@@ -5,6 +5,13 @@
 	export default {
 		onLaunch: async function() {
 			console.log('App Launch');
+			
+			// 从本地缓存获取用户信息
+			const userInfo = uni.getStorageSync('userInfo');
+			if (userInfo) {
+				this.$store.commit('setUserInfo', JSON.parse(userInfo));
+			}
+			
 			// 获取系统设置
 			const systemResult = await ProxyGetSystemIndex();
 			if (systemResult.success) {

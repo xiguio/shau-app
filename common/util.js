@@ -94,7 +94,25 @@ function friendlyDate(timestamp) {
 	}
 	return formats[diffType].replace('%n%', diffValue);
 }
+
+function wechatMPLogin() {
+  return new Promise(function (resolve, reject) {
+    wx.login({
+      success: function (res) {
+        if (res.code) {
+          resolve(res.code);
+        } else {
+          reject(res);
+        }
+      },
+      fail: function (err) {
+        reject(err);
+      }
+    });
+  });
+}
 export {
 	friendlyDate,
-	dateFormat
+	dateFormat,
+	wechatMPLogin
 }

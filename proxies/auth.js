@@ -14,9 +14,9 @@ export function ProxySmsLogin(data = {}) {
 }
 
 // 微信登录
-export function ProxyWeChatLogin(data = {}) {
+export function ProxyWechatMPLogin(data = {}) {
   return Request({
-    url: '/login',
+    url: '/api/auth/wechatMPLogin',
     method: 'POST',
     data
   })

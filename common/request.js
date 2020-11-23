@@ -3,8 +3,7 @@ const request = (options) => {
   return new Promise((resolve, reject) => {
     const token = uni.getStorageSync('token');
 	console.info('请求参数', options.data, options.url, options.method, token);
-	// const api = 'http://127.0.0.1:7001';
-	const api = 'https://14d-api.xigu.pro';
+	const api = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:7001' : 'https://14d-api.xigu.pro';
     uni.request({
         url: `${api}${options.url}`,
 		data: options.data,

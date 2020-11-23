@@ -26,10 +26,13 @@ const store = new Vuex.Store({
 		},
 		// 当前用户信息
 		setUserInfo(state, userInfo) {
+			state.hasLogin = true;
 			state.userInfo = userInfo;
 		},
 		celarUserInfo(state) {
+			state.hasLogin = false;
 			state.userInfo = {};
+			uni.removeStorageSync('userInfo');
 		},
 		// 系统设置信息
 		setSystemInfo(state, systemInfo) {

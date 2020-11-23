@@ -1,13 +1,18 @@
 <template>
 	<view class="center-page">
-		<view class="logo" @click="toLoginPage">
+		<!-- #ifdef MP-WEIXIN -->
+		<button class="logo" open-type="getUserInfo" @getuserinfo="onWechatMPLogin">
+		<!-- #endif -->
+		<!-- #ifndef MP-WEIXIN -->
+		<button class="logo">
+		<!-- #endif -->
 			<image class="logo-img" :src="hasLogin && userInfo.avatar ? userInfo.avatar : avatar"></image>
 			<view class="logo-title">
-				<text class="username">Hi，{{hasLogin ? userInfo.nickname : '游客'}}</text>
+				<text class="username">{{hasLogin ? 'Hi，' + userInfo.nickname : '立即登录'}}</text>
 				<text class="level-name">{{vipList[currentLevelIndex].name}}</text>
 				<text class="go-login-navigat-arrow navigat-arrow" v-if="!hasLogin">&#xe65e;</text>
 			</view>
-		</view>
+		</button>
 		<view class="level">
 			<view class="score">
 				<text class="score-number">{{userInfo.score || 0}}</text>
@@ -35,11 +40,19 @@
 				</view>
 			</view>
 		</view>
+		<view class="center-list">
+			<view class="center-list-item" @click="onLogout">
+				<text class="list-text text-center" :class="{'text-disabled': !hasLogin}">退出登录</text>
+			</view>
+		</view>
 	</view>
 </template>
 
 <script>
 	import { mapState } from 'vuex';
+	import { wechatMPLogin } from '@/common/util.js';
+	import { ProxyWechatMPLogin } from '@/proxies/auth.js';
+	
 	export default {
 		data() {
 			return {
@@ -96,14 +109,8 @@
 			},
 			...mapState(['userInfo', 'vipList', 'hasLogin'])
 		},
-		onShow() {
-			uni.$emit('getUserInfo', true);
-		},
-		onPullDownRefresh() {
-			uni.$emit('getUserInfo', false);
-		},
 		methods: {
-			logout() {
+			onLogout() {
 				if (!this.hasLogin) {
 					return;
 				}
@@ -118,11 +125,30 @@
 				    }
 				});
 			},
-			toLoginPage() {
-				if (!this.hasLogin) {
-					uni.navigateTo({
-						url: '/pages/auth/login'
-					});
+			// 微信小程序登录
+			async onWechatMPLogin(e) {
+				if (e.detail.errMsg !== 'getUserInfo:ok') {
+				  if (e.detail.errMsg === 'getUserInfo:fail auth deny') {
+					return false
+				  }
+				  uni.showToast({
+					title: '微信登录失败',
+					icon: 'none'
+				  })
+				  return false
+				}
+				const code = await wechatMPLogin();
+				const params = {
+					code,
+					userInfo: e.detail,
+				};
+				const res = await ProxyWechatMPLogin(params);
+				if (res.success) {
+					const { token, userInfo } = res.data;
+					this.$store.commit('login', token);
+					this.$store.commit('setUserInfo', userInfo);
+					uni.setStorageSync('token', token);
+					uni.setStorageSync('userInfo', JSON.stringify(userInfo));
 				}
 			}
 		}
@@ -159,18 +185,22 @@
 
 	.logo {
 		width: 750rpx;
-		height: 420rpx;
+		height: 440rpx;
 		padding: 40rpx 20rpx 100rpx 20rpx;
 		background-color: #564f5f;
+		display: flex;
 		flex-direction: row;
 		align-items: center;
+		border-radius: 0;
+		text-align: left;
+		border: none;
 	}
 	.level {
 		background-color: #FFFFFF;
-		height: 280rpx;
+		height: 290rpx;
 		margin-right: 30rpx;
 		margin-left: 30rpx;
-		margin-top: -140rpx;
+		margin-top: -145rpx;
 		margin-bottom: 20rpx;
 		border-radius: 18rpx;
 		padding: 30rpx;
@@ -206,6 +236,7 @@
 	.level-text {
 		margin: 10rpx;
 		font-size: 32rpx;
+		color: #444444;
 	}
 	.level-name {
 		color: #FFFFFF;
@@ -261,6 +292,7 @@
 		align-items: center;
 		justify-content: center;
 		margin-left: 20rpx;
+		text-align: left;
 	}
 
 	.center-list {
