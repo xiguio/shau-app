@@ -317,7 +317,7 @@
 		flex-direction: column;
 		overflow: hidden;
 		/* #ifdef MP-ALIPAY || MP-BAIDU || MP-WEIXIN */
-		height: 100vh;
+		height: calc(100vh - 120rpx);
 		/* #endif */
 	}
 

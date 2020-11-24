@@ -34,7 +34,7 @@
                     <text class="loading-more-text">{{loadingText}}</text>
                 </view>
             </uni-cell>
-            <uni-cell v-if="isNoMore">
+            <uni-cell v-if="!isNoData && isNoMore">
                 <view class="no-more">
                     <text class="no-more-text">已经到底了</text>
                 </view>
@@ -222,9 +222,19 @@
 	.resource-page {
 		flex: 1;
 		flex-direction: column;
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
 	}
 
 	.list-view {
+		position: absolute;
+		left: 0;
+		top: 10rpx;
+		right: 0;
+		bottom: 10rpx;
 		/* #ifndef APP-NVUE */
 		display: flex;
 		flex-direction: row;

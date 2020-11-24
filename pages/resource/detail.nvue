@@ -6,36 +6,36 @@
 			</view>
 			<view class="meta">
 				<text class="meta-text title">{{resourceDetail.title}}</text>
-				<text class="meta-text" v-if="resourceDetail.category">
-					分类: {{resourceDetail.category}}
-				</text>
-				<text class="meta-text" v-if="resourceDetail.director">
-					导演: {{resourceDetail.director}}
-				</text>
-				<text class="meta-text" v-if="resourceDetail.palywright">
-					编剧: {{resourceDetail.palywright}}
-				</text>
-				<text class="meta-text" v-if="resourceDetail.mainRole">
-					主演: {{resourceDetail.mainRole}}
-				</text>
-				<text class="meta-text" v-if="resourceDetail.cname">
-					译名: {{resourceDetail.cname}}
-				</text>
-				<text class="meta-text" v-if="resourceDetail.ename">
-					片名: {{resourceDetail.ename}}
-				</text>
-				<text class="meta-text" v-if="resourceDetail.years">
-					年代: {{resourceDetail.years}}
-				</text>
-				<text class="meta-text" v-if="resourceDetail.producingArea">
-					产地: {{resourceDetail.producingArea}}
-				</text>
-				<text class="meta-text" v-if="resourceDetail.releaseDate">
-					上映日期: {{resourceDetail.releaseDate}}
-				</text>
-				<text class="meta-text" v-if="resourceDetail.duration">
-					片长: {{resourceDetail.duration}}
-				</text>
+				<view class="meta-text" v-if="resourceDetail.category">
+					<text class="meta-label">分类：</text>{{resourceDetail.category}}
+				</view>
+				<view class="meta-text" v-if="resourceDetail.director">
+					<text class="meta-label">导演：</text>{{resourceDetail.director}}
+				</view>
+				<view class="meta-text" v-if="resourceDetail.palywright">
+					<text class="meta-label">编剧：</text>{{resourceDetail.palywright}}
+				</view>
+				<view class="meta-text" v-if="resourceDetail.mainRole">
+					<text class="meta-label">主演：</text>{{resourceDetail.mainRole}}
+				</view>
+				<view class="meta-text" v-if="resourceDetail.cname">
+					<text class="meta-label">译名：</text>{{resourceDetail.cname}}
+				</view>
+				<view class="meta-text" v-if="resourceDetail.ename">
+					<text class="meta-label">片名：</text>{{resourceDetail.ename}}
+				</view>
+				<view class="meta-text" v-if="resourceDetail.years">
+					<text class="meta-label">年代：</text>{{resourceDetail.years}}
+				</view>
+				<view class="meta-text" v-if="resourceDetail.producingArea">
+					<text class="meta-label">产地：</text>{{resourceDetail.producingArea}}
+				</view>
+				<view class="meta-text" v-if="resourceDetail.releaseDate">
+					<text class="meta-label">上映日期：</text>{{resourceDetail.releaseDate}}
+				</view>
+				<view class="meta-text" v-if="resourceDetail.duration">
+					<text class="meta-label">片长：</text>{{resourceDetail.duration}}
+				</view>
 			</view>
 		</view>
 		<view class="description" v-if="resourceDetail.description">
@@ -140,6 +140,12 @@
 	.meta-text {
 		color: #666;
 		font-size: 30rpx;
+		flex-direction: row;
+	}
+	.meta-label {
+		font-weight: bold;
+		color: #333;
+		word-break: keep-all;
 	}
 	.title {
 		font-size: 36rpx;
