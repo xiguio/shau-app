@@ -10,7 +10,7 @@
 			<view class="loading-more" v-if="isLoading">
 				<text class="loading-more-text">{{loadingText}}</text>
 			</view>
-			<view class="no-more" v-else-if="isNoMore">
+			<view class="no-more" v-else-if="!isNoData && isNoMore">
 				<text class="no-more-text">已经到底了</text>
 			</view>
 		</scroll-view>
@@ -68,7 +68,11 @@
 			category: {
 				type: [Number, String],
 				default: ''
-			}
+			},
+			keywords: {
+				type: String,
+				default: ''
+			},
 		},
 		data() {
 			return {
@@ -106,7 +110,8 @@
 				const params = {
 					page: this.page,
 					size: this.size,
-					category: this.category
+					category: this.category,
+					keywords: this.keywords
 				}
 				const result = await ProxyGetResourceList(params);
 				setTimeout(() => {
@@ -137,7 +142,7 @@
 						// 否则拼接上一页获取的数据
 						this.resourceList = this.resourceList.concat(resourceList);
 					}
-					if (data.totalPages === this.page) {
+					if (data.totalPages <= this.page) {
 						setTimeout(() => {
 							this.isNoMore = true;
 						}, 800);
@@ -217,21 +222,9 @@
 	.resource-page {
 		flex: 1;
 		flex-direction: column;
-		position: absolute;
-		left: 0;
-		top: 0;
-		right: 0;
-		bottom: 0;
 	}
-	
-	
 
 	.list-view {
-		position: absolute;
-		left: 0;
-		top: 10rpx;
-		right: 0;
-		bottom: 10rpx;
 		/* #ifndef APP-NVUE */
 		display: flex;
 		flex-direction: row;
@@ -242,7 +235,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		flex-direction: row;
-		padding: 0 10rpx;
+		padding: 10rpx;
 	}
 	
 	.list-item {

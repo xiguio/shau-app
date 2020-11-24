@@ -38,7 +38,7 @@
 				</text>
 			</view>
 		</view>
-		<view class="description">
+		<view class="description" v-if="resourceDetail.description">
 			<text class="label">剧情介绍</text>
 			{{resourceDetail.description}}
 		</view>

@@ -48,7 +48,7 @@
 					return;
 				}
 				this.navigateFlag = true;
-				const id = this.resourceList[index].resourceList[resourceIndex].categoryId;
+				const id = this.resourceList[index].resourceList[resourceIndex].id;
 				uni.navigateTo({
 					url: `/pages/resource/detail?id=${id}`
 				});
@@ -107,5 +107,6 @@
 	}
 	.more {
 		color: #666666;
+		font-size: 32rpx;
 	}
 </style>
