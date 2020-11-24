@@ -211,12 +211,11 @@
 
 	.logo {
 		width: 750rpx;
-		height: 440rpx;
-		padding: 40rpx 20rpx 100rpx 20rpx;
+		height: 320rpx;
+		padding: 0 20rpx 100rpx 20rpx;
 		background-color: #564f5f;
 		display: flex;
 		flex-direction: row;
-		align-items: center;
 		border-radius: 0;
 		text-align: left;
 	}

@@ -1,41 +1,52 @@
 <template>
-	<view class="tabs">
-		<scroll-view ref="tabbar1" id="tab-bar" class="tab-bar" :scroll="false" :scroll-x="true" :show-scrollbar="false"
-		 :scroll-into-view="scrollInto">
-			<view style="flex-direction: column;">
-				<view style="flex-direction: row;">
-					<view class="uni-tab-item" v-for="tab in tabList" :key="tab.id" :id="'tab'+tab.id" :ref="'tabitem'+tab.id"
-					 :data-id="tab.id" :data-current="tab.id" @click="ontabtap">
-						<text class="uni-tab-item-title" :class="tabIndex==tab.id ? 'uni-tab-item-title-active' : ''">{{tab.name}}</text>
+	<view class="home-page">
+		<view class="search">
+			<input type="text" placeholder="请输入关键字" confirm-type="search" @confirm="handleSearch" />
+			<icon type="search" size="22"/>
+		</view>
+		<view class="tabs">
+			<scroll-view ref="tabbar1" id="tab-bar" class="tab-bar" :scroll="false" :scroll-x="true" :show-scrollbar="false"
+			 :scroll-into-view="scrollInto">
+				<view style="flex-direction: column;">
+					<view style="flex-direction: row;">
+						<view class="uni-tab-item" v-for="tab in tabList" :key="tab.id" :id="'tab'+tab.id" :ref="'tabitem'+tab.id"
+						 :data-id="tab.id" :data-current="tab.id" @click="ontabtap">
+							<text class="uni-tab-item-title" :class="tabIndex==tab.id ? 'uni-tab-item-title-active' : ''">{{tab.name}}</text>
+						</view>
+					</view>
+					<view class="scroll-view-indicator">
+						<view ref="underline" class="scroll-view-underline" :class="isTap ? 'scroll-view-animation':''" :style="{'left': indicatorLineLeft + 'px', 'width': indicatorLineWidth + 'px'}"></view>
 					</view>
 				</view>
-				<view class="scroll-view-indicator">
-					<view ref="underline" class="scroll-view-underline" :class="isTap ? 'scroll-view-animation':''" :style="{'left': indicatorLineLeft + 'px', 'width': indicatorLineWidth + 'px'}"></view>
-				</view>
-			</view>
-		</scroll-view>
-		<view class="tab-bar-line"></view>
-		<swiper class="tab-box" ref="swiper1" :current="tabIndex" :duration="300" @change="onswiperchange" @transition="onswiperscroll"
-		 @animationfinish="animationfinish" @onAnimationEnd="animationfinish">
-			<swiper-item class="swiper-item" v-for="(page, index) in tabList" :key="index">
-				<!-- #ifndef MP-ALIPAY -->
-				<resourcePage class="page-item" :category="page.id" ref="page"></resourcePage>
-				<!-- #endif -->
-				<!-- #ifdef MP-ALIPAY -->
-				<resourcePage class="page-item" :category="page.id" :ref="'page' + index"></resourcePage>
-				<!-- #endif -->
-			</swiper-item>
-		</swiper>
+			</scroll-view>
+			<view class="tab-bar-line"></view>
+			<swiper class="tab-box" ref="swiper1" :current="tabIndex" :duration="300" @change="onswiperchange" @transition="onswiperscroll"
+			 @animationfinish="animationfinish" @onAnimationEnd="animationfinish">
+				<swiper-item class="swiper-item" v-for="(page, index) in tabList" :key="index">
+					<homePage v-if="page.id == 0" class="page-item" :category="page.id" @switchTab="onSwitchTab" ref="page"></homePage>
+					<template v-else>
+						<!-- #ifndef MP-ALIPAY -->
+						<resourcePage class="page-item" :category="page.id" ref="page"></resourcePage>
+						<!-- #endif -->
+						<!-- #ifdef MP-ALIPAY -->
+						<resourcePage class="page-item" :category="page.id" :ref="'page' + index"></resourcePage>
+						<!-- #endif -->
+					</template>
+				</swiper-item>
+			</swiper>
+		</view>
 	</view>
 </template>
 
 <script>
 	import { mapState } from 'vuex';
+	import { ProxyGetHomeList } from '../../proxies/home.js';
 	// #ifdef APP-PLUS
 	const dom = weex.requireModule('dom');
 	// #endif
 
 	import resourcePage from './page.nvue';
+	import homePage from './home.nvue';
 
 	// 缓存每页最多
 	const MAX_CACHE_DATA = 100;
@@ -45,7 +56,8 @@
 
 	export default {
 		components: {
-			resourcePage
+			resourcePage,
+			homePage,
 		},
 		data() {
 			return {
@@ -55,7 +67,8 @@
 				navigateFlag: false,
 				indicatorLineLeft: 0,
 				indicatorLineWidth: 0,
-				isTap: false
+				isTap: false,
+				homeList: [],
 			}
 		},
 		onReady() {
@@ -98,6 +111,9 @@
 				this.switchTab(this.tabIndex);
 				
 				this.getTabbarItemsSize();
+			},
+			handleSearch(e) {
+				console.info(e.detail.value);
 			},
 			ontabtap(e) {
 				let index = e.target.dataset.current || e.currentTarget.dataset.current;
@@ -201,6 +217,10 @@
 				this.indicatorLineLeft = left;
 				this.indicatorLineWidth = width;
 			},
+			onSwitchTab(categoryId) {
+				const index = this.tabList.findIndex(item => item.id === categoryId);
+				this.switchTab(index);
+			},
 			switchTab(index) {
 				if (this.pageList[index].resourceList.length === 0) {
 					this.loadTabData(index);
@@ -267,7 +287,18 @@
 	}
 
 	/* #endif */
-
+	.search {
+		margin: 20rpx;
+		background-color: #f5f5f5;
+		border-radius: 10rpx;
+		padding: 10rpx 20rpx;
+		display: flex;
+		flex-direction: row;
+		font-size: 32rpx;
+	}
+	.search input {
+		flex: 1;
+	}
 	.tabs {
 		flex: 1;
 		flex-direction: column;

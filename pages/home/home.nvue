@@ -1,0 +1,111 @@
+<template>
+	<view class="home-list-page">
+		<scroll-view class="list-view" enableBackToTop="true" scroll-y>
+			<template  v-for="(item, index) in resourceList">
+				<view v-if="item.resourceList && item.resourceList.length" class="list-panel" :key="'category' + item.categoryId">
+					<view class="category-name">
+						<text>最新{{item.categoryName}}</text>
+						<text class="more" @click="switchTab(index)">更多 》</text>
+					</view>
+					<view class="list-group">
+						<view class="list-item" v-for="(resource, resourceIndex) in item.resourceList" :key="resource.id">
+							<resource-item :resourceItem="resource" @click="toDetailPage(index, resourceIndex)" />
+						</view>
+					</view>
+				</view>
+			</template>
+		</scroll-view>
+	</view>
+</template>
+
+<script>
+	import { ProxyGetHomeList } from '../../proxies/home.js';
+	import resourceItem from './item.nvue';
+
+	export default {
+		components: {
+			resourceItem
+		},
+		data() {
+			return {
+				resourceList: [],
+				navigateFlag: false,
+				isLoading: false,
+			}
+		},
+		methods: {
+			switchTab(index) {
+				this.$emit('switchTab', this.resourceList[index].categoryId);
+			},
+			async getResourceList() {
+				const res = await ProxyGetHomeList();
+				if (res.success) {
+					this.resourceList = res.data;
+				}
+			},
+			toDetailPage(index, resourceIndex) {
+				if (this.navigateFlag) {
+					return;
+				}
+				this.navigateFlag = true;
+				const id = this.resourceList[index].resourceList[resourceIndex].categoryId;
+				uni.navigateTo({
+					url: `/pages/resource/detail?id=${id}`
+				});
+				setTimeout(() => {
+					this.navigateFlag = false;
+				}, 200)
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.home-list-page {
+		flex: 1;
+		flex-direction: column;
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	.list-view {
+		position: absolute;
+		left: 0;
+		top: 10rpx;
+		right: 0;
+		bottom: 10rpx;
+		/* #ifndef APP-NVUE */
+		display: flex;
+		flex-direction: row;
+		/* #endif */
+	}
+	
+	.list-group {
+		display: flex;
+		flex-wrap: wrap;
+		flex-direction: row;
+		padding: 0 10rpx;
+	}
+	
+	.list-item {
+		width: 33.33%;
+	}
+	
+	.list-panel {
+		
+	}
+	
+	.category-name {
+		font-size: 36rpx;
+		margin: 20rpx;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+	.more {
+		color: #666666;
+	}
+</style>
