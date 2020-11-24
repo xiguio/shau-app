@@ -1,5 +1,5 @@
 <template>
-	<view class="resource-page">
+	<view class="resource-page" :style="{'top': keywords ? '50rpx' : 0}">
 		<!-- #ifdef MP-QQ || MP-WEIXIN -->
 		<scroll-view class="list-view" enableBackToTop="true" scroll-y @scrolltolower="loadMore()">
 			<view class="list-group">
