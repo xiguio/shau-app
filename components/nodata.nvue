@@ -6,12 +6,12 @@
 			</view>
 			<view class="icon-view"></view>
 			<view class="opera-view">
-				<view v-if="networkType=='none'" @click="openSettings">
-					<button size="mini">设置</button>
+				<view v-if="networkType=='none'">
+					<button class="button" size="mini" @click="openSettings">设置</button>
 				</view>
-				<view v-else @click="retry">
+				<view v-else>
 					<view>暂无数据</view>
-					<button size="mini">重试</button>
+					<button class="button" size="mini" @click="retry">重试</button>
 				</view>
 			</view>
 		</view>
@@ -163,5 +163,10 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		color: #666666;
+	}
+	
+	.button {
+		margin: 40rpx 0;
 	}
 </style>
