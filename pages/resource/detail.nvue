@@ -42,12 +42,13 @@
 			<text class="label">剧情介绍</text>
 			{{resourceDetail.description}}
 		</view>
-		<view class="link" v-if="!systemInfo.isConcise">
-			<view>百度云</view>
-			<view>{{resourceDetail.downloadUrl}}</view>
-			<view>提取码</view>
-			<view>{{resourceDetail.downloadPassword}}</view>
-			<button size="mini" type="primary" @click="handleCopy()">一键复制</button>
+		<view class="link"
+			@click="handleCopy()"
+			v-if="!systemInfo.isWechatMPUnrelease && resourceDetail.downloadUrl">
+			<text class="label">百度云</text>
+			<text :selectable="true">{{resourceDetail.downloadUrl}}</text>
+			<text :selectable="true">提取码：{{resourceDetail.downloadPassword}}</text>
+			<button size="mini" type="primary">一键复制</button>
 		</view>
 	</view>
 </template>

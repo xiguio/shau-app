@@ -1,8 +1,8 @@
 <template>
 	<view class="home-list-page">
 		<scroll-view class="list-view" enableBackToTop="true" scroll-y>
-			<template  v-for="(item, index) in resourceList">
-				<view v-if="item.resourceList && item.resourceList.length" class="list-panel" :key="'category' + item.categoryId">
+			<view v-for="(item, index) in resourceList" class="list-panel" :key="index">
+				<template v-if="item.resourceList && item.resourceList.length">
 					<view class="category-name">
 						<text>最新{{item.categoryName}}</text>
 						<text class="more" @click="switchTab(index)">更多 》</text>
@@ -12,8 +12,8 @@
 							<resource-item :resourceItem="resource" @click="toDetailPage(index, resourceIndex)" />
 						</view>
 					</view>
-				</view>
-			</template>
+				</template>
+			</view>
 		</scroll-view>
 	</view>
 </template>

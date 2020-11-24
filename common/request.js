@@ -1,10 +1,9 @@
+import { api } from 'config';
 // 请求封装
 const request = (options) => {
   return new Promise((resolve, reject) => {
     const token = uni.getStorageSync('token');
 	console.info('请求参数', options.data, options.url, options.method, token);
-	const api = 'http://localhost:7001';
-	// const api = 'https://14d-api.xigu.pro';
     uni.request({
         url: `${api}${options.url}`,
 		data: options.data,

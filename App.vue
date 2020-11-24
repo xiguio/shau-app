@@ -2,6 +2,8 @@
 	import { ProxyGetSystemIndex } from './proxies/system.js';
 	import { ProxyGetCategoryList } from './proxies/category.js';
 	import { ProxyGetVipList } from './proxies/vip.js';
+	import { wechatMPVersion } from 'config/index.js';
+	
 	export default {
 		methods: {
 			// 获取分类
@@ -23,7 +25,8 @@
 			// 获取系统设置
 			const systemResult = await ProxyGetSystemIndex();
 			if (systemResult.success) {
-				this.$store.commit('setSystemInfo', systemResult.data);
+				const isWechatMPUnrelease = wechatMPVersion > systemResult.data.wechatMPVersion;
+				this.$store.commit('setSystemInfo', { isWechatMPUnrelease, ...systemResult.data });
 			}
 			
 			// 获取会员等级列表
