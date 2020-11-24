@@ -63,6 +63,10 @@
 				this.handleInit();
 			}, 800);
 		},
+		onPullDownRefresh() {
+			uni.$emit('getCategoryList');
+			this.loadTabData(this.tabIndex, true);
+		},
 		computed: {
 			tabList() {
 				const tabs = this.categoryList;
@@ -244,8 +248,8 @@
 					offset: -offset
 				});
 			},
-			loadTabData(index) {
-				this.pageList[index].getResourceList();
+			loadTabData(index, refresh) {
+				this.pageList[index].getResourceList(refresh);
 			},
 			clearTabData(index) {
 				this.pageList[index].clear();

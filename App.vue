@@ -3,9 +3,17 @@
 	import { ProxyGetCategoryList } from './proxies/category.js';
 	import { ProxyGetVipList } from './proxies/vip.js';
 	export default {
+		methods: {
+			// 获取分类
+			async getCategoryList() {
+				const categoryResult = await ProxyGetCategoryList({ parentId: 0 });
+				if (categoryResult.success) {
+					this.$store.commit('setCategoryList', categoryResult.data);
+				}
+			}
+		},
 		onLaunch: async function() {
 			console.log('App Launch');
-			
 			// 从本地缓存获取用户信息
 			const userInfo = uni.getStorageSync('userInfo');
 			if (userInfo) {
@@ -24,11 +32,10 @@
 				this.$store.commit('setVipList', vipResult.data);
 			}
 			
-			// 获取分类
-			const categoryResult = await ProxyGetCategoryList({ parentId: 0 });
-			if (categoryResult.success) {
-				this.$store.commit('setCategoryList', categoryResult.data);
-			}
+			this.getCategoryList();
+			uni.$on('getCategoryList', () => {
+				this.getCategoryList();
+			});
 			
 			// #ifdef APP-NVUE
 			plus.screen.lockOrientation('portrait-primary');

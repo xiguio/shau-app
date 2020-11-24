@@ -25,12 +25,7 @@
 				"backgroundTextStyle": "light",
 				"navigationBarTextStyle": "white",
 				"enablePullDownRefresh": true,
-				"titleNView": {
-					"type": "transparent"
-				},
-				"mp-weixin": {
-					"navigationStyle": "custom"
-				}
+				"navigationBarBackgroundColor": "#564f5f"
 			}
 		}
     ],

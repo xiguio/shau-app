@@ -52,6 +52,7 @@
 	import { mapState } from 'vuex';
 	import { wechatMPLogin } from '@/common/util.js';
 	import { ProxyWechatMPLogin } from '@/proxies/auth.js';
+	import { ProxyGetUserInfo } from '@/proxies/user.js';
 	
 	export default {
 		data() {
@@ -109,6 +110,12 @@
 			},
 			...mapState(['userInfo', 'vipList', 'hasLogin'])
 		},
+		onPullDownRefresh() {
+			this.getUserInfo();
+		},
+		onShow() {
+			this.getUserInfo();
+		},
 		methods: {
 			onLogout() {
 				if (!this.hasLogin) {
@@ -144,13 +151,32 @@
 				};
 				const res = await ProxyWechatMPLogin(params);
 				if (res.success) {
-					const { token, userInfo } = res.data;
-					this.$store.commit('login', token);
-					this.$store.commit('setUserInfo', userInfo);
-					uni.setStorageSync('token', token);
-					uni.setStorageSync('userInfo', JSON.stringify(userInfo));
+					this.loginCallback(res.data);
 				}
-			}
+			},
+			loginCallback(data) {
+				const { token, userInfo } = data;
+				this.cacheUserToken(token);
+				this.cacheUserInfo(userInfo);
+			},
+			cacheUserToken(token) {
+				this.$store.commit('login', token);
+				uni.setStorageSync('token', token);
+			},
+			cacheUserInfo(userInfo) {
+				this.$store.commit('setUserInfo', userInfo);
+				uni.setStorageSync('userInfo', JSON.stringify(userInfo));
+			},
+			// 获取用户信息
+			async getUserInfo() {
+				const res = await ProxyGetUserInfo();
+				setTimeout(() => {
+					uni.stopPullDownRefresh();
+				}, 800);
+				if (res.success) {
+					this.cacheUserInfo(res.data);
+				}
+			},
 		}
 	}
 </script>
@@ -193,6 +219,8 @@
 		align-items: center;
 		border-radius: 0;
 		text-align: left;
+	}
+	.logo::after {
 		border: none;
 	}
 	.level {

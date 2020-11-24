@@ -98,7 +98,7 @@
 		},
 		methods: {
 			async getResourceList(refresh) {
-				if (this.isLoading || this.isNoMore) {
+				if (!refresh && (this.isLoading || this.isNoMore)) {
 					return;
 				}
 				this.isLoading = true;
@@ -111,6 +111,7 @@
 				const result = await ProxyGetResourceList(params);
 				setTimeout(() => {
 					this.isLoading = false;
+					uni.stopPullDownRefresh();
 				}, 800)
 				if (refresh) {
 					this.pullTimer = setTimeout(() => {
