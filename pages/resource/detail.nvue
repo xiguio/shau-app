@@ -51,7 +51,7 @@
 			v-if="!systemInfo.isWechatMPUnrelease && resourceDetail.downloadUrl">
 			<text class="label">百度云</text>
 			<text :selectable="true">{{resourceDetail.downloadUrl}}</text>
-			<text :selectable="true">提取码：{{resourceDetail.downloadPassword}}</text>
+			<text :selectable="true" v-if="resourceDetail.downloadPassword">提取码：{{resourceDetail.downloadPassword}}</text>
 			<button size="mini" type="primary">一键复制</button>
 		</view>
 	</view>
@@ -96,7 +96,9 @@
 		},
 		methods: {
 			handleCopy() {
-				const text = `复制这段内容后打开百度网盘App，操作更方便哦。链接：${this.resourceDetail.downloadUrl} 提取码：${this.resourceDetail.downloadPassword} `;
+				const { downloadPassword, downloadUrl } = this.resourceDetail;
+				const passwordText = downloadPassword ? `提取码：${downloadPassword}` : '';
+				const text = `复制这段内容后打开百度网盘App，操作更方便哦。链接：${downloadUrl} ${passwordText}`;
 				uni.setClipboardData({
 				    data: text,
 				    success: function () {
@@ -131,7 +133,7 @@
 <style scoped>
 	.resource-detail-page {
 		flex: 1;
-		padding: 20rpx;
+		padding: 20rpx 20rpx 140rpx;
 	}
 	.main {
 		display: flex;
