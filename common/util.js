@@ -111,8 +111,23 @@ function wechatMPLogin() {
     });
   });
 }
+
+function wechatGetUserInfo() {
+  return new Promise(function (resolve, reject) {
+    wx.getUserInfo({
+		success: (res) => {
+			resolve(res);
+		},
+		fail: (err) => {
+			reject(err);
+		}
+	 });
+  });
+}
+
 export {
 	friendlyDate,
 	dateFormat,
-	wechatMPLogin
+	wechatMPLogin,
+	wechatGetUserInfo
 }

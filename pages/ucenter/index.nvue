@@ -50,7 +50,7 @@
 
 <script>
 	import { mapState } from 'vuex';
-	import { wechatMPLogin } from '@/common/util.js';
+	import { wechatMPLogin, wechatGetUserInfo } from '@/common/util.js';
 	import { ProxyWechatMPLogin } from '@/proxies/auth.js';
 	import { ProxyGetUserInfo } from '@/proxies/user.js';
 	
@@ -145,9 +145,10 @@
 				  return false
 				}
 				const code = await wechatMPLogin();
+				const wechatMPUserInfo = await wechatGetUserInfo();
 				const params = {
 					code,
-					userInfo: e.detail,
+					userInfo: wechatMPUserInfo,
 				};
 				const res = await ProxyWechatMPLogin(params);
 				if (res.success) {
