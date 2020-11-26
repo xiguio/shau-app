@@ -1,6 +1,6 @@
 <template>
 	<view class="resource-page" :style="{'top': keywords ? '50rpx' : 0}">
-		<!-- #ifdef MP-QQ || MP-WEIXIN -->
+		<!-- #ifdef MP-QQ -->
 		<scroll-view class="list-view" enableBackToTop="true" scroll-y @scrolltolower="loadMore()">
 			<view class="list-group">
 				<view class="list-item" v-for="(item, index) in resourceList" :key="item.id">
@@ -16,7 +16,7 @@
 		</scroll-view>
 		<!-- #endif -->
 		<!-- QQ multipleSlots=true bug -->
-		<!-- #ifndef MP-QQ || MP-WEIXIN -->
+		<!-- #ifndef MP-QQ -->
 		<uni-list class="list-view" :enableBackToTop="true" :scroll-y="true" @scrolltolower="loadMore()">
             <uni-refresh class="refresh" @refresh="onrefresh" @pullingdown="onpullingdown" :display="refreshing ? 'show' : 'hide'">
                 <div class="refresh-view">
@@ -26,9 +26,11 @@
                     <text class="loading-text">{{refreshText}}</text>
                 </div>
             </uni-refresh>
-            <uni-cell v-for="(item, index) in resourceList" :key="item.id">
-                <resource-item :resourceItem="item" @click="toDetailPage(item.id)"></resource-item>
-            </uni-cell>
+			<view class="list-group">
+				<uni-cell class="list-item" style="float:left" v-for="(item, index) in resourceList" :key="item.id">
+					<resource-item :resourceItem="item" @click="toDetailPage(item.id)"></resource-item>
+				</uni-cell>
+			</view>
             <uni-cell v-if="isLoading">
                 <view class="loading-more">
                     <text class="loading-more-text">{{loadingText}}</text>
@@ -41,7 +43,7 @@
             </uni-cell>
         </uni-list>
 		<!-- #endif -->
-		<no-data class="no-data" v-if="!isLoading && isNoData" @retry="loadMore"></no-data>
+		<no-data class="no-data" v-if="!isLoading && isNoData" @retry="getResourceList(true)"></no-data>
 	</view>
 </template>
 
@@ -93,7 +95,6 @@
 					contentnomore: ''
 				},
 				page: 1,
-				size: 10,
 				refreshIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAB5QTFRFcHBw3Nzct7e39vb2ycnJioqK7e3tpqam29vb////D8oK7wAAAAp0Uk5T////////////ALLMLM8AAABxSURBVHja7JVBDoAgDASrjqj//7CJBi90iyYeOHTPMwmFZrHjYyyFYYUy1bwUZqtJIYVxhf1a6u0R7iUvWsCcrEtwJHp8MwMdvh2amHduiZD3rpWId9+BgPd7Cc2LIkPyqvlQvKxKBJ//Qwq/CacAAwDUv0a0YuKhzgAAAABJRU5ErkJggg=="
 			}
 		},
@@ -105,11 +106,13 @@
 				if (!refresh && (this.isLoading || this.isNoMore)) {
 					return;
 				}
+				if (refresh) {
+					this.page = 1;
+				}
 				this.isLoading = true;
 				this.isNoData = false;
 				const params = {
 					page: this.page,
-					size: this.size,
 					category: this.category,
 					keywords: this.keywords
 				}
@@ -153,7 +156,7 @@
 				this.isNoData = this.resourceList.length === 0;
 			},
 			loadMore() {
-				this.getResourceList(true);
+				this.getResourceList();
 			},
 			clear() {
 				this.resourceList.length = 0;
