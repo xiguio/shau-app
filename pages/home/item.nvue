@@ -1,7 +1,12 @@
 <template>
     <view class="resource-item" @click="click">
         <view class="panel">
-            <image mode="aspectFill" lazy-load v-if="resourceItem.thumbnail" class="image" :src="resourceItem.thumbnail"></image>
+            <image
+				mode="aspectFill"
+				lazy-load
+				v-if="resourceItem.thumbnail"
+				class="image"
+				:src="`${imageBaseUrl}/${resourceItem.thumbnail}`"></image>
             <view class="info">
 				<text class="title">{{resourceItem.cname}}</text>
 			</view>
@@ -10,6 +15,8 @@
 </template>
 
 <script>
+	import { imageDomain } from '../../config/index.js';
+	
     export default {
         props: {
             resourceItem: {
@@ -19,6 +26,11 @@
                 }
             }
         },
+		data() {
+			return {
+				imageBaseUrl: imageDomain,
+			}
+		},
         methods: {
             click() {
                 this.$emit('click');

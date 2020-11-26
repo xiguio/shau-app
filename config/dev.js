@@ -1,5 +1,6 @@
 const config =  {
 	api: 'http://127.0.0.1:7001',
-	wechatMPVersion: 103,
+	imageDomain: 'https://img.xigu.pro',
+	wechatMPVersion: 104,
 }
 export default config;
