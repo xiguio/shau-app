@@ -2,7 +2,11 @@
 	<view class="resource-detail-page">
 		<view class="main">
 			<view class="thumbnail">
-				<image mode="aspectFill" class="thumbnail-img" :src="resourceDetail.thumbnail"></image>
+				<image
+					v-if="resourceDetail.thumbnail"
+					mode="aspectFill"
+					class="thumbnail-img"
+					:src="`${imageBaseUrl}/${resourceDetail.thumbnail}`"></image>
 			</view>
 			<view class="meta">
 				<text class="meta-text title">{{resourceDetail.title}}</text>
@@ -56,6 +60,7 @@
 <script>
 	import { ProxyGetResourceDetail } from '../../proxies/resource.js';
 	import { dateFormat } from '@/common/util.js';
+	import { imageDomain } from '../../config/index.js';
 	import { mapState } from 'vuex';
 
 	export default {
@@ -63,20 +68,30 @@
 			return {
 				isLoading: false,
 				resourceId: null,
+				imageBaseUrl: imageDomain,
 				resourceDetail: {}
 			}
 		},
 		computed: {
-			...mapState(['systemInfo'])
+			...mapState(['systemInfo', 'userInfo'])
 		},
-		onShareAppResource() {
+		onShareAppMessage() {
+			let inviterCode = '';
+			if (this.userInfo && this.userInfo.inviterCode) {
+				inviterCode = this.userInfo.inviterCode;
+			}
 			return {
 				title: this.resourceDetail.title,
-				path: '/pages/resource/detail?id=' + this.resourceId
+				path: `/pages/resource/detail?id=${this.resourceId}&inviter=${inviterCode}`,
+				imageUrl: `${this.imageBaseUrl}/${this.resourceDetail.thumbnail}`,
 			}
 		},
-		onLoad(event) {
-			this.resourceId = event.id;
+		onLoad(options) {
+			const { inviter, id } = options;
+			this.resourceId = id;
+			if (inviter) {
+				uni.setStorageSync('inviter', inviter);
+			}
 			this.getResourceDetail();
 		},
 		methods: {

@@ -146,8 +146,10 @@
 				}
 				const code = await wechatMPLogin();
 				const wechatMPUserInfo = await wechatGetUserInfo();
+				const inviter = uni.getStorageSync('inviter');
 				const params = {
 					code,
+					inviter,
 					userInfo: wechatMPUserInfo,
 				};
 				const res = await ProxyWechatMPLogin(params);

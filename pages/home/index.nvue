@@ -77,6 +77,17 @@
 				isSearch: false,
 			}
 		},
+		onShareAppMessage() {
+			let inviterCode = '';
+			if (this.userInfo && this.userInfo.inviterCode) {
+				inviterCode = this.userInfo.inviterCode;
+			}
+			const { name, shortDescription } = this.systemInfo;
+			return {
+				title: `【${name}】${shortDescription}`,
+				path: `/pages/home/index?inviter=${inviterCode}`,
+			};
+		},
 		onReady() {
 			setTimeout(() => {
 				this.handleInit();
@@ -95,7 +106,7 @@
 				});
 				return tabs;
 			},
-			...mapState(['categoryList'])
+			...mapState(['categoryList', 'userInfo', 'systemInfo'])
 		},
 		methods: {
 			handleInit() {
