@@ -12,6 +12,36 @@
 				if (categoryResult.success) {
 					this.$store.commit('setCategoryList', categoryResult.data);
 				}
+			},
+			// 检查各平台小程序更新
+			checkMPUpdate() {
+				// #ifndef APP-NVUE
+				const updateManager = uni.getUpdateManager();
+				updateManager.onCheckForUpdate((result) => {
+					// 请求完新版本信息的回调
+					if (result.hasUpdate) {
+						updateManager.onUpdateReady((res) => {
+							uni.showModal({
+							  title: '更新提示',
+							  content: '新版本已经准备好，是否重启应用？',
+							  success(res) {
+								if (res.confirm) {
+								  // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+								  updateManager.applyUpdate();
+								}
+							  }
+							});
+						});
+						updateManager.onUpdateFailed(() => {
+							// 新的版本下载失败
+							uni.showModal({
+							  title: '更新失败',
+							  content: '自动更新失败，请您删除当前小程序，重新打开',
+							});
+						});
+					}
+				});
+				// #endif
 			}
 		},
 		onLaunch: async function() {
@@ -39,6 +69,8 @@
 			uni.$on('getCategoryList', () => {
 				this.getCategoryList();
 			});
+			
+			this.checkMPUpdate();
 			
 			// #ifdef APP-NVUE
 			plus.screen.lockOrientation('portrait-primary');
