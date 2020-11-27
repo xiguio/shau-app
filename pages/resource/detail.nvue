@@ -156,7 +156,7 @@
 
 	.meta-text {
 		color: #666;
-		font-size: 30rpx;
+		font-size: 28rpx;
 		flex-direction: row;
 	}
 	.meta-label {

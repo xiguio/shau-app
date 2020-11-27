@@ -13,10 +13,19 @@ export function ProxySmsLogin(data = {}) {
   })
 }
 
-// 微信登录
+// 微信小程序授权登录
 export function ProxyWechatMPLogin(data = {}) {
   return Request({
     url: '/api/auth/wechatMPLogin',
+    method: 'POST',
+    data
+  })
+}
+
+// QQ小程序授权登录
+export function ProxyQQMPLogin(data = {}) {
+  return Request({
+    url: '/api/auth/qqMPLogin',
     method: 'POST',
     data
   })

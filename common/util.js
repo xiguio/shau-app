@@ -95,26 +95,44 @@ function friendlyDate(timestamp) {
 	return formats[diffType].replace('%n%', diffValue);
 }
 
-function wechatMPLogin() {
-  return new Promise(function (resolve, reject) {
-    wx.login({
-      success: function (res) {
-        if (res.code) {
-          resolve(res.code);
-        } else {
-          reject(res);
-        }
-      },
-      fail: function (err) {
-        reject(err);
-      }
-    });
+function uniGetProvider() {
+	return new Promise(function (resolve, reject) {
+		uni.getProvider({
+			service: 'oauth',
+			success: function (res) {
+				resolve(res);
+			},
+			fail: function (err) {
+				reject(err);
+			}
+		})
+	});
+}
+
+function uniLogin() {
+  return new Promise(async function (resolve, reject) {
+	const provider = await uniGetProvider();
+	uni.login({
+		provider: provider.length ? provider[0] : '',
+		success: function (loginResult) {
+			if (loginResult.code) {
+				resolve(loginResult.code);
+			} else {
+				reject(loginResult);
+			}
+		},
+		fail: function (err) {
+			reject(err);
+		}
+	});
   });
 }
 
-function wechatGetUserInfo() {
-  return new Promise(function (resolve, reject) {
-    wx.getUserInfo({
+function uniGetUserInfo() {
+  return new Promise(async function (resolve, reject) {
+	const provider = await uniGetProvider();
+    uni.getUserInfo({
+		provider: provider.length ? provider[0] : '',
 		success: (res) => {
 			resolve(res);
 		},
@@ -128,6 +146,6 @@ function wechatGetUserInfo() {
 export {
 	friendlyDate,
 	dateFormat,
-	wechatMPLogin,
-	wechatGetUserInfo
+	uniLogin,
+	uniGetUserInfo
 }

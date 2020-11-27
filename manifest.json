@@ -73,5 +73,12 @@
                 "enable" : true
             }
         }
+    },
+    "mp-qq" : {
+        "appid" : "1111249956",
+        "setting" : {
+            "es6" : true,
+            "minified" : true
+        }
     }
 }

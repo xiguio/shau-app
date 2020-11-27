@@ -1,22 +1,5 @@
 <template>
-	<view class="resource-page" :style="{'top': keywords ? '50rpx' : 0}">
-		<!-- #ifdef MP-QQ -->
-		<scroll-view class="list-view" enableBackToTop="true" scroll-y @scrolltolower="loadMore()">
-			<view class="list-group">
-				<view class="list-item" v-for="(item, index) in resourceList" :key="item.id">
-					<resource-item :resourceItem="item" @click="toDetailPage(item.id)"></resource-item>
-				</view>
-			</view>
-			<view class="loading-more" v-if="isLoading">
-				<text class="loading-more-text">{{loadingText}}</text>
-			</view>
-			<view class="no-more" v-else-if="!isNoData && isNoMore">
-				<text class="no-more-text">已经到底了</text>
-			</view>
-		</scroll-view>
-		<!-- #endif -->
-		<!-- QQ multipleSlots=true bug -->
-		<!-- #ifndef MP-QQ -->
+	<view class="resource-page" :style="{'top': keywords ? '60rpx' : 0}">
 		<uni-list class="list-view" :enableBackToTop="true" :scroll-y="true" @scrolltolower="loadMore()">
             <uni-refresh class="refresh" @refresh="onrefresh" @pullingdown="onpullingdown" :display="refreshing ? 'show' : 'hide'">
                 <div class="refresh-view">
@@ -42,7 +25,6 @@
                 </view>
             </uni-cell>
         </uni-list>
-		<!-- #endif -->
 		<no-data class="no-data" v-if="!isLoading && isNoData" @retry="getResourceList(true)"></no-data>
 	</view>
 </template>

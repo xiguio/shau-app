@@ -310,6 +310,9 @@
 	}
 
 	/* #endif */
+	.home-page {
+		height: 100vh;
+	}
 	.search {
 		margin: 20rpx;
 		background-color: #f5f5f5;
