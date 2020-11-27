@@ -45,6 +45,7 @@
 <script>
 	import { mapState } from 'vuex';
 	import { ProxyGetHomeList } from '../../proxies/home.js';
+	import { ProxyGetCategoryList } from '../../proxies/category.js';
 	// #ifdef APP-PLUS
 	const dom = weex.requireModule('dom');
 	// #endif
@@ -88,27 +89,37 @@
 				path: `/pages/home/index?inviter=${inviterCode}`,
 			};
 		},
-		onReady() {
-			setTimeout(() => {
-				this.handleInit();
-			}, 800);
+		onReady () {
+			this.getCategoryList(true);
 		},
 		onPullDownRefresh() {
-			uni.$emit('getCategoryList');
+			this.getCategoryList();
 			this.loadTabData(this.tabIndex, true);
 		},
 		computed: {
 			tabList() {
 				const tabs = this.categoryList;
-				tabs.unshift({
+				const list = [{
 					id: 0,
 					name: '首页',
-				});
-				return tabs;
+				}];
+				return list.concat(tabs);
 			},
 			...mapState(['categoryList', 'userInfo', 'systemInfo'])
 		},
 		methods: {
+			// 获取分类
+			async getCategoryList(isInit) {
+				const categoryResult = await ProxyGetCategoryList({ parentId: 0 });
+				if (categoryResult.success) {
+					this.$store.commit('setCategoryList', categoryResult.data);
+					if (isInit) {
+						setTimeout(() => {
+							this.handleInit();
+						});
+					}
+				}
+			},
 			handleInit() {
 				this._lastTabIndex = 0;
 				this.swiperWidth = 0;

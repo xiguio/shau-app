@@ -1,18 +1,10 @@
 <script>
 	import { ProxyGetSystemIndex } from './proxies/system.js';
-	import { ProxyGetCategoryList } from './proxies/category.js';
 	import { ProxyGetVipList } from './proxies/vip.js';
 	import { wechatMPVersion } from 'config/index.js';
 	
 	export default {
 		methods: {
-			// 获取分类
-			async getCategoryList() {
-				const categoryResult = await ProxyGetCategoryList({ parentId: 0 });
-				if (categoryResult.success) {
-					this.$store.commit('setCategoryList', categoryResult.data);
-				}
-			},
 			// 检查各平台小程序更新
 			checkMPUpdate() {
 				// #ifndef APP-NVUE
@@ -64,11 +56,6 @@
 			if (vipResult.success) {
 				this.$store.commit('setVipList', vipResult.data);
 			}
-			
-			this.getCategoryList();
-			uni.$on('getCategoryList', () => {
-				this.getCategoryList();
-			});
 			
 			this.checkMPUpdate();
 			
