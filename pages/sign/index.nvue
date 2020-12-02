@@ -1,0 +1,229 @@
+<template>
+  <view class="sign-page">
+	<view class="panel">
+	  <view class="sign-header">
+		<view class="left">
+		  已连续签到<text class="strong">{{currentSignCount}}</text>天
+		</view>
+		<view class="right">
+		  明天签到可得<text class="strong">{{nextScore}}</text>积分
+		</view>
+	  </view>
+	  <view class="sign-list">
+		<view
+		  class="sign-item"
+		  :class="{'disabled': item.disabled || isSign && step === index,
+			'active': step === index}"
+		  v-for="(item, index) in list"
+		  @click="doSign(item, index)"
+		  :key="index">
+		  <view class="coin chest" v-if="index === (list.length - 1)">
+			<template v-if="item.disabled || isSign && step === index">
+			  {{item.score}}
+			</template>
+		  </view>
+		  <view class="coin" v-else>{{item.score}}</view>
+		  <view v-if="item.disabled || isSign && step === index">已领</view>
+		  <view v-else>{{step === index ? '领取' : item.name}}</view>
+		</view>
+	  </view>
+	</view>
+  </view>
+</template>
+<script>
+import moment from '@/common/moment/moment';
+import { ProxyGetSignList, ProxyDoSign } from '@/proxies/sign';
+import { mapState } from 'vuex';
+
+export default {
+  data() {
+    return {
+      list: [],
+      nextScore: 0,
+      step: 0,
+      isSign: false,
+      currentSignCount: 0,
+    };
+  },
+  watch: {
+    '$store.state.userInfo.signAt'() {
+      this.getSignList();
+    },
+  },
+  computed: {
+	...mapState(['userInfo', 'hasLogin'])
+  },
+  methods: {
+	// 获取是否已经签到
+    getIsSign() {
+      const signAt = this.userInfo.signAt ? new Date(+this.userInfo.signAt) : new Date();
+      const start = moment(moment(signAt, 'YYYY-MM-DD')).set({
+        hour: 0,
+        minute: 0,
+        second: 0,
+        millisecond: 0,
+      });
+      const end = moment(moment(new Date(), 'YYYY-MM-DD'));
+      const days = end.diff(start, 'days');
+      // 当天已签到
+      this.isSign = this.userInfo.signAt && days === 0;
+      return days;
+    },
+	// 获取签到列表
+    async getSignList() {
+      const days = this.getIsSign();
+      const res = await ProxyGetSignList();
+      console.info(days, this.isSign);
+      if (res.success) {
+        const { signCount } = this.userInfo;
+        // 以签到规则列表元素长度为一个签到周期
+        if (days > 1) {
+          // 如果距离上次签到时间大于一天，则从零开始
+          this.step = 0;
+          this.currentSignCount = 0;
+        } else {
+          this.currentSignCount = signCount;
+          if ((this.isSign ? (signCount - 1) : signCount) >= res.data.length) {
+            // 如果连续签到天数大于或等于一个签到周期的天数
+            this.step = signCount % res.data.length;
+          } else {
+            this.step = signCount;
+          }
+        }
+        if (this.isSign) {
+          // 如果今天已签到
+          this.step -= 1;
+        }
+        // 如果当天是一个周期的最后一天，且当天未签到，则隐藏可得积分
+        if (!this.isSign && this.step + 1 === res.data.length) {
+          this.nextScore = '?';
+        } else {
+          if (this.step + 1 === res.data.length) {
+            this.nextScore = res.data[0].score;
+          } else {
+			console.info(this.step);
+            this.nextScore = res.data[this.step + 1].score;
+          }
+        }
+        console.info('step', this.step);
+        this.list = res.data.map((item, index) => {
+          if (index < this.step || this.step < 0) {
+            item.disabled = true;
+          }
+          return item;
+        });
+      }
+    },
+	// 签到事件
+    async doSign(item, index) {
+      if (item.disabled || this.step !== index) {
+        return;
+      }
+      const params = {
+        userId: this.userInfo.id,
+        signId: item.id,
+        // 本次签到积分
+        signScore: item.score,
+        // 上次签到时间
+        signAt: this.userInfo.signAt,
+      };
+      const res = await ProxyDoSign(params);
+      if (res.success) {
+		uni.showToast({
+			title: '签到成功',
+			icon: 'none'
+		})
+        this.cacheUserInfo(res.data);
+      }
+    },
+	cacheUserInfo(userInfo) {
+		this.$store.commit('setUserInfo', userInfo);
+		uni.setStorageSync('userInfo', JSON.stringify(userInfo));
+	},
+  },
+  created() {
+    if (this.userInfo.id) {
+      this.getSignList();
+    }
+  },
+};
+</script>
+<style lang="scss">
+.sign-page {
+	background-color: #f9f9f9;
+	min-height: 100vh;
+    .panel {
+      margin: 30rpx;
+      padding: 60rpx 20rpx 20rpx;
+      border-radius: 20rpx;
+      box-sizing: border-box;
+      background-color: #fff;
+      position: relative;
+      .close {
+        position: absolute;
+        top: 12rpx;
+        right: 12rpx;
+      }
+    }
+  .sign-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+	flex-direction: row;
+    .left {
+      font-size: 16px;
+      color: #666;
+	  flex-direction: row;
+    }
+    .right {
+      font-size: 12px;
+      color: #999;
+	  flex-direction: row;
+    }
+    .strong {
+      color: #F56C6C;
+      margin: 0 2px;
+    }
+  }
+  .sign-list {
+    display: flex;
+    flex-wrap: wrap;
+	flex-direction: row;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    .sign-item {
+      font-size: 12px;
+      text-align: center;
+      margin: 2px 5px;
+      &.active {
+        color: #F56C6C;
+        .coin {
+          background-image: url("../../static/coin-active.png");
+        }
+      }
+      .coin {
+        line-height: 30px;
+        color: #fff;
+        font-weight: bold;
+        width: 30px;
+        height: 30px;
+        background-image: url("../../static/coin.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        margin-bottom: 6px;
+        position: relative;
+        &.chest {
+          background-image: url("../../static/chest.png");
+        }
+      }
+      &.disabled {
+        color: #999;
+        .coin {
+          color: #999;
+          background-image: url("../../static/coin-disabled.png");
+        }
+      }
+    }
+  }
+}
+</style>

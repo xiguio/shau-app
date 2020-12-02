@@ -2,8 +2,8 @@
     "name" : "影视多",
     "appid" : "__UNI__EBABAA7",
     "description" : "电影电视剧网盘资源",
-    "versionName" : "1.0.0",
-    "versionCode" : 100,
+    "versionName" : "1.0.6",
+    "versionCode" : 106,
     "transformPx" : false,
     "uniStatistics" : {
         "enable" : true

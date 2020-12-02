@@ -1,5 +1,5 @@
 <template>
-	<view class="center-page">
+	<view class="ucenter-page">
 		<!-- #ifndef APP-PLUS -->
 		<button class="logo" open-type="getUserInfo" @getuserinfo="onUniLogin">
 		<!-- #endif -->
@@ -14,9 +14,12 @@
 			</view>
 		</button>
 		<view class="level">
-			<view class="score">
-				<text class="score-number">{{userInfo.score || 0}}</text>
-				<text class="score-text">积分</text>
+			<view class="score-panel">
+				<view class="score">
+					<text class="score-number">{{userInfo.score || 0}}</text>
+					<text class="score-text">积分</text>
+				</view>
+				<button class="sign" @click="toSign">签到</button>
 			</view>
 			<view>
 				<text class="next" v-if="nextLevelScore > -1">距离下一等级还需 {{nextLevelScore - (userInfo.score || 0)}} 积分</text>
@@ -117,6 +120,14 @@
 			this.getUserInfo();
 		},
 		methods: {
+			toSign() {
+				if (!this.hasLogin) {
+					return;
+				}
+				uni.navigateTo({
+					url: '../sign/index'
+				})
+			},
 			onLogout() {
 				if (!this.hasLogin) {
 					return;
@@ -189,7 +200,7 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	/* #ifndef APP-PLUS-NVUE */
 	@font-face {
 		font-family: texticons;
@@ -207,10 +218,10 @@
 
 	/* #endif */
 
-	.center-page {
+	.ucenter-page {
 		flex: 1;
 		flex-direction: column;
-		background-color: #f8f8f8;
+		background-color: #f9f9f9;
 		min-height: 100vh;
 	}
 	.text-center {
@@ -277,6 +288,10 @@
 		color: #FFFFFF;
 		font-size: 28rpx;
 	}
+	.score-panel {
+		flex-direction: row;
+		justify-content: space-between;
+	}
 	.score {
 		color: #333333;
 		flex-direction: row;
@@ -288,6 +303,19 @@
 	.score-text {
 		font-size: 28rpx;
 		margin-left: 10rpx;
+	}
+	.sign {
+		margin: 0;
+		padding: 0 20rpx;
+		border: none;
+		background: transparent;
+		height: 60rpx;
+		line-height: 60rpx;
+		font-size: 32rpx;
+		color: #333;
+		&::after {
+			border-color: #333;
+		}
 	}
 	.next {
 		font-size: 24rpx;

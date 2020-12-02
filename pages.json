@@ -20,6 +20,12 @@
 			}
 		},
 		{
+			"path": "pages/sign/index",
+			"style": {
+				"navigationBarTitleText": "每日签到"
+			}
+		},
+		{
 			"path": "pages/ucenter/index",
 			"style": {
 				"backgroundColorTop": "#564f5f",
