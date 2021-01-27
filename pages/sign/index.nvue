@@ -120,7 +120,6 @@ export default {
         return;
       }
       const params = {
-        userId: this.userInfo.id,
         signId: item.id,
         // 本次签到积分
         signScore: item.score,

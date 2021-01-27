@@ -184,5 +184,6 @@
 	.link {
 		font-size: 30rpx;
 		color: #444;
+		word-break: break-all;
 	}
 </style>
