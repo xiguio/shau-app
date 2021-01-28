@@ -4,7 +4,7 @@
 			"path": "pages/home/index",
 			"style": {
 				"enablePullDownRefresh": true,
-				"navigationBarTitleText": "影视多"
+				"navigationBarTitleText": "鲨鱼CMS"
 			}
 		},
 		{

@@ -1,9 +1,9 @@
 {
-    "name" : "影视多",
+    "name" : "鲨鱼CMS",
     "appid" : "__UNI__EBABAA7",
-    "description" : "电影电视剧网盘资源",
-    "versionName" : "1.0.6",
-    "versionCode" : 106,
+    "description" : "自带裂变属性的CMS",
+    "versionName" : "1.0.0",
+    "versionCode" : 100,
     "transformPx" : false,
     "uniStatistics" : {
         "enable" : true
