@@ -1,4 +1,5 @@
-import { api } from 'config';
+import { api } from '../config/index.js';
+import { toLoginPage } from './util.js'
 // 请求封装
 const request = (options) => {
   return new Promise((resolve, reject) => {
@@ -9,18 +10,25 @@ const request = (options) => {
 		data: options.data,
 		method: options.method,
 		header: {
-			'X-VStore-Token': token,
+			'X-ShaU-Token': token,
 		},
         success: (res) => {
 			console.info('请求返回', res.data);
-			if (res.data.errno || res.statusCode !== 200) {
+			const { errno, errmsg } = res.data;
+			if (errno || res.statusCode !== 200) {
 			  !options.quiet && uni.showToast({
-				title: res.data.errmsg || '服务器异常',
+				title: errmsg || '服务器异常',
 				icon: 'none',
 			  });
+			  if (errno === -5) {
+				// 未登录或token已过期
+				setTimeout(() => {
+					toLoginPage();
+				}, 800);
+			  }
 			}
 			if (res.data instanceof Object) {
-				res.data.success = !res.data.errno;
+				res.data.success = !errno;
 			}
             resolve(res.data);
         },

@@ -1,83 +1,78 @@
 <template>
 	<view class="login-page">
-		<view>
-			<text class="title">手机号登录/注册</text>
-			<input class="input" v-model="form.mobile" type="number" placeholder="请输入手机号码" />
-			<view class="code">
-				<input class="input code-input" v-model="form.code" type="number" placeholder="验证码" />
-				<button v-if="time" class="login" plain size="mini" type="primary" disabled>重新获取({{time}})</button>
-				<button v-else class="login" plain size="mini" type="primary" @click="sendSms">获取验证码</button>
-			</view>
-			<button class="confirm" :loading="isPending" :disabled="isPending" type="primary" @click="smsLogin">确定</button>
+		<view class="login-panel">
+			<text class="title">{{systemInfo.name}}</text>
+			<!-- #ifndef APP-PLUS -->
+			<button class="login-button" :loading="isPending" :disabled="isPending" type="primary"open-type="getUserInfo" @getuserinfo="onUniLogin">
+				一键登录
+			</button>
+			<!-- #endif -->
 		</view>
-		<login-footer />
 	</view>
 </template>
 
 <script>
-	import LoginFooter from '../../components/login-footer.nvue';
-	import { ProxySmsLogin } from '../../proxies/auth.js';
-	import { ProxySendSms } from '../../proxies/sms.js';
-	import { validateMobile, validateCode } from '../../common/validator.js';
+	import { mapState } from 'vuex';
+	import { uniLogin, uniGetUserInfo, loginCallBack } from '../../common/util.js';
+	import { ProxyWechatMPLogin, ProxyQQMPLogin } from '@/proxies/auth.js';
 	
 	export default {
 		data() {
 			return {
 				isPending: false,
-				form: {
-					mobile: null,
-					code: null
-				},
-				time: null,
-				countdown: null
 			}
 		},
-		components: {
-			LoginFooter
-		},
-		onUnload() {
-			clearInterval(this.countdown);
+		computed: {
+			...mapState(['systemInfo'])
 		},
 		methods: {
-			startCountdown() {
-				this.time = 60;
-				this.countdown = setInterval(() => {
-					this.time -= 1;
-					if (this.time <= 0) {
-						clearInterval(this.countdown);
-					}
-				}, 1000);
-			},
-			async sendSms() {
-				const { mobile } = this.form;
-				if (!validateMobile(mobile)) {
-					return;
-				}
-				const res = await ProxySendSms({ mobile });
-				if (res.success) {
-					this.startCountdown();
-				}
-			},
-			async smsLogin() {
-				const { mobile, code } = this.form;
-				if (!validateMobile(mobile)) {
-					return;
-				}
-				if (!validateCode(code)) {
-					return;
+			// 授权登录
+			async onUniLogin(e) {
+				if (e.detail.errMsg !== 'getUserInfo:ok') {
+				  if (e.detail.errMsg === 'getUserInfo:fail auth deny') {
+					return false
+				  }
+				  uni.showToast({
+					title: '登录失败',
+					icon: 'none'
+				  })
+				  return false
 				}
 				this.isPending = true;
-				const res = await ProxySmsLogin({ mobile, code });
+				const code = await uniLogin();
+				const uniUserInfo = await uniGetUserInfo();
+				const inviter = uni.getStorageSync('inviter');
+				const params = {
+					code,
+					inviter,
+					userInfo: uniUserInfo,
+				};
+				// #ifdef MP-WEIXIN
+				const res = await ProxyWechatMPLogin(params);
+				// #endif
+				// #ifdef MP-QQ
+				const res = await ProxyQQMPLogin(params);
+				// #endif
 				setTimeout(() => {
 					this.isPending = false;
-				}, 600);
+				}, 800);
 				if (res.success) {
-					clearInterval(this.countdown);
-					const { token } = res.data;
-					this.$store.commit('login', token);
-					uni.setStorageSync('token', token);
-					uni.navigateBack();
+					this.handleLoginCallback(res.data);
 				}
+			},
+			handleLoginCallback(data) {
+				const { token, userInfo } = data;
+				this.cacheUserToken(token);
+				this.cacheUserInfo(userInfo);
+				loginCallBack();
+			},
+			cacheUserToken(token) {
+				this.$store.commit('login', token);
+				uni.setStorageSync('token', token);
+			},
+			cacheUserInfo(userInfo) {
+				this.$store.commit('setUserInfo', userInfo);
+				uni.setStorageSync('userInfo', JSON.stringify(userInfo));
 			},
 		}
 		
@@ -88,28 +83,24 @@
 .login-page {
 	flex: 1;
 	padding: 30rpx;
-	justify-content: space-between;
+	justify-content: center;
 }
 .title {
 	font-size: 48rpx;
 	margin-bottom: 66rpx;
+	text-align: center;
 }
-.input {
-	height: 80rpx;
-	border-bottom-width: 1rpx;
-	border-bottom-color: #999999;
-	border-bottom-style: solid;
-	margin-bottom: 40rpx;
+.login-panel {
+	margin-top: 20vh;
 }
-.login {
-	margin-bottom: 40rpx;
+.login-button {
+    border-radius: 20px;
+    height: 80rpx;
+    line-height: 80rpx;
+    font-size: 36rpx;
+    margin: 10rpx 30rpx;
 }
-.code {
-	flex-direction: row;
-	justify-content: space-between;
-}
-.code-input {
-	flex: 1;
-	margin-right: 30rpx;
+.login-button::after {
+	border: none;
 }
 </style>

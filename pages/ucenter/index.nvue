@@ -1,11 +1,6 @@
 <template>
 	<view class="ucenter-page">
-		<!-- #ifndef APP-PLUS -->
-		<button class="logo" open-type="getUserInfo" @getuserinfo="onUniLogin">
-		<!-- #endif -->
-		<!-- #ifdef APP-PLUS -->
-		<button class="logo">
-		<!-- #endif -->
+		<button class="logo" @click="handleAvatarClick">
 			<image class="logo-img" :src="hasLogin && userInfo.avatar ? userInfo.avatar : avatar"></image>
 			<view class="logo-title">
 				<text class="username">{{hasLogin ? 'Hi，' + userInfo.nickname : '立即登录'}}</text>
@@ -53,8 +48,7 @@
 
 <script>
 	import { mapState } from 'vuex';
-	import { uniLogin, uniGetUserInfo } from '@/common/util.js';
-	import { ProxyWechatMPLogin, ProxyQQMPLogin } from '@/proxies/auth.js';
+	import { toLoginPage } from '../../common/util.js'
 	import { ProxyGetUserInfo } from '@/proxies/user.js';
 	
 	export default {
@@ -117,16 +111,24 @@
 			this.getUserInfo();
 		},
 		onShow() {
-			this.getUserInfo();
+			if (this.hasLogin) {
+				this.getUserInfo();
+			}
 		},
 		methods: {
+			handleAvatarClick() {
+				if (!this.hasLogin) {
+					toLoginPage();
+				}
+			},
 			toSign() {
 				if (!this.hasLogin) {
-					return;
+					toLoginPage();
+				} else {
+					uni.navigateTo({
+						url: '../sign/index'
+					});
 				}
-				uni.navigateTo({
-					url: '../sign/index'
-				})
 			},
 			onLogout() {
 				if (!this.hasLogin) {
@@ -142,45 +144,6 @@
 				        }
 				    }
 				});
-			},
-			// 授权登录
-			async onUniLogin(e) {
-				if (e.detail.errMsg !== 'getUserInfo:ok') {
-				  if (e.detail.errMsg === 'getUserInfo:fail auth deny') {
-					return false
-				  }
-				  uni.showToast({
-					title: '登录失败',
-					icon: 'none'
-				  })
-				  return false
-				}
-				const code = await uniLogin();
-				const uniUserInfo = await uniGetUserInfo();
-				const inviter = uni.getStorageSync('inviter');
-				const params = {
-					code,
-					inviter,
-					userInfo: uniUserInfo,
-				};
-				// #ifdef MP-WEIXIN
-				const res = await ProxyWechatMPLogin(params);
-				// #endif
-				// #ifdef MP-QQ
-				const res = await ProxyQQMPLogin(params);
-				// #endif
-				if (res.success) {
-					this.loginCallback(res.data);
-				}
-			},
-			loginCallback(data) {
-				const { token, userInfo } = data;
-				this.cacheUserToken(token);
-				this.cacheUserInfo(userInfo);
-			},
-			cacheUserToken(token) {
-				this.$store.commit('login', token);
-				uni.setStorageSync('token', token);
 			},
 			cacheUserInfo(userInfo) {
 				this.$store.commit('setUserInfo', userInfo);

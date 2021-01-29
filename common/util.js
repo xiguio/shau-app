@@ -143,9 +143,43 @@ function uniGetUserInfo() {
   });
 }
 
+// json转url参数
+function parseParam(param) {
+  let string = "";
+  for (let key in param) {
+    let str = `${key}=${param[key]}&`;
+    string = string + str;
+  }
+  return string.slice(0, string.length - 1);
+};
+
+// 跳转到登录页，先换成当前页面，以便于登录成功后返回
+function toLoginPage() {
+  const pages = getCurrentPages();
+  const fromPage = pages[pages.length - 1];
+  uni.setStorageSync('loginCallbackPage', {
+    url: fromPage.route,
+    options: fromPage.options,
+  });
+  uni.redirectTo({ url: '/pages/auth/login' });
+};
+
+// 登录成功后返回到之前的页面
+function loginCallBack() {
+  const page = uni.getStorageSync('loginCallbackPage');
+  console.info('即将要跳转的页面', page);
+  const params = parseParam(page.options);
+  const url = page
+    ? `/${page.url}?${params}`
+    : '/pages/ucenter/index';
+  uni.reLaunch({ url });
+};
+
 export {
 	friendlyDate,
 	dateFormat,
 	uniLogin,
-	uniGetUserInfo
+	uniGetUserInfo,
+	toLoginPage,
+	loginCallBack,
 }

@@ -26,6 +26,12 @@
 			}
 		},
 		{
+			"path": "pages/auth/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
 			"path": "pages/ucenter/index",
 			"style": {
 				"backgroundColorTop": "#564f5f",
